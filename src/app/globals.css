@@ -30,7 +30,7 @@
 
 /* `inline` so the utilities reference the next/font variables at use site. */
 @theme inline {
-  --font-display: var(--font-instrument), ui-serif, Georgia, serif;
+  --font-display: var(--font-display-face), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
@@ -55,9 +55,9 @@
 
   --t-hero: clamp(3rem, 8.5vw, 6rem);
   --t-h2: clamp(1.85rem, 4vw, 2.75rem);
-  --t-h3: clamp(1.25rem, 2.4vw, 1.65rem);
-  --t-body: clamp(1rem, 1.15vw, 1.0625rem);
-  --t-lead: clamp(1.08rem, 1.55vw, 1.3rem);
+  --t-h3: clamp(1.45rem, 2.8vw, 1.95rem);
+  --t-body: clamp(1.03rem, 1.2vw, 1.1rem);
+  --t-lead: clamp(1.14rem, 1.6vw, 1.38rem);
 
   --measure: 58ch;
   --gutter: clamp(1rem, 3.5vw, 2.25rem);
@@ -79,7 +79,7 @@
     --accent: #a34b06; --accent-2: #8a3a03;
     --accent-soft: rgba(163, 75, 6, 0.10);
     --accent-line: rgba(163, 75, 6, 0.34);
-    --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #9b9186;
+    --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #7d7268;
     color-scheme: light;
   }
 }
@@ -102,7 +102,7 @@ body {
 a { color: inherit; }
 
 h1, h2, h3 {
-  font-family: var(--font-instrument), ui-serif, Georgia, serif;
+  font-family: var(--font-display-face), ui-serif, Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -112,10 +112,19 @@ h1, h2, h3 {
 
 .eyebrow {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-size: 0.82rem; letter-spacing: 0.13em; text-transform: uppercase;
   color: var(--muted); margin: 0;
 }
 .eyebrow--accent { color: var(--accent); }
+
+/* Surfaces are translucent so the dot field reads through the whole page
+   rather than surviving only in the side margins. */
+.work-row, .contact-card, .beyond-list li, .story-teaser, .role-tech li,
+.skillrow dd span, .portrait {
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(3px);
+}
+.nav { backdrop-filter: blur(16px); }
 
 /* ---------------- global dot field ---------------- */
 #field { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -129,13 +138,13 @@ h1, h2, h3 {
 }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 64px; }
 .nav-name {
-  font-family: var(--font-instrument), ui-serif, Georgia, serif;
-  font-size: 1.2rem; letter-spacing: -0.015em; color: var(--fg); text-decoration: none;
+  font-family: var(--font-display-face), ui-serif, Georgia, serif;
+  font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; color: var(--fg); text-decoration: none;
 }
 .nav-links {
   display: flex; align-items: center; gap: clamp(0.75rem, 2.2vw, 1.75rem);
   list-style: none; margin: 0; padding: 0;
-  font-size: 0.92rem; font-weight: 500;
+  font-size: 0.98rem; font-weight: 500;
 }
 .nav-links a { color: var(--muted); text-decoration: none; transition: color .18s; }
 .nav-links a:hover { color: var(--fg); }
@@ -146,8 +155,8 @@ h1, h2, h3 {
 /* ---------------- buttons ---------------- */
 .btn {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.78rem; letter-spacing: 0.08em;
-  padding: 0.8rem 1.25rem; border-radius: 10px; text-decoration: none;
+  font-size: 0.86rem; letter-spacing: 0.06em;
+  padding: 0.85rem 1.35rem; border-radius: 10px; text-decoration: none;
   border: 1px solid transparent; cursor: pointer; display: inline-block;
   transition: transform .18s ease, border-color .18s, box-shadow .18s;
 }
@@ -164,7 +173,7 @@ h1, h2, h3 {
 }
 .hero h1 { margin: 0.75rem 0 0; font-size: var(--t-hero); line-height: 0.94; }
 .positioning { margin: 1.5rem 0 0; font-size: var(--t-lead); line-height: 1.55; max-width: var(--measure); color: var(--fg-dim); }
-.hero-loc { margin: 0.85rem 0 0; font-family: var(--font-jetbrains), monospace; font-size: 0.8rem; color: var(--muted); }
+.hero-loc { margin: 0.85rem 0 0; font-family: var(--font-jetbrains), monospace; font-size: 0.9rem; color: var(--muted); }
 .cta-row { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2.1rem; }
 
 .portrait {
@@ -202,22 +211,22 @@ h1, h2, h3 {
 .role--now::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft); }
 
 .role-top { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
-.role-when { font-family: var(--font-jetbrains), monospace; font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+.role-when { font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
 .now-chip {
-  font-family: var(--font-jetbrains), monospace; font-size: 0.6rem; letter-spacing: 0.14em;
+  font-family: var(--font-jetbrains), monospace; font-size: 0.7rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--accent);
   border: 1px solid var(--accent-line); background: var(--accent-soft);
   border-radius: 999px; padding: 0.15rem 0.5rem;
 }
-.role-title { margin: 0.45rem 0 0; font-family: var(--font-instrument), ui-serif, Georgia, serif; font-size: var(--t-h3); letter-spacing: -0.015em; }
+.role-title { margin: 0.45rem 0 0; font-family: var(--font-display-face), ui-serif, Georgia, serif; font-size: var(--t-h3); letter-spacing: -0.015em; }
 .role-org { color: var(--accent); }
 .role-bullets { margin: 0.6rem 0 0; padding-left: 1.1rem; color: var(--fg-dim); max-width: var(--measure); }
 .role-bullets li { margin-top: 0.35rem; }
 .role-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0 0; padding: 0; list-style: none; }
 .role-tech li {
-  font-family: var(--font-jetbrains), monospace; font-size: 0.68rem; letter-spacing: 0.05em;
+  font-family: var(--font-jetbrains), monospace; font-size: 0.78rem; letter-spacing: 0.03em;
   color: var(--muted); border: 1px solid var(--hair-soft); border-radius: 6px;
-  padding: 0.22rem 0.55rem; background: var(--surface);
+  padding: 0.3rem 0.65rem; background: var(--surface);
 }
 
 /* ---------------- work rows ---------------- */
@@ -237,7 +246,7 @@ h1, h2, h3 {
   border-left: 1px solid var(--hair); display: grid; place-items: center; min-height: 236px;
 }
 .preview-label {
-  font-family: var(--font-jetbrains), monospace; font-size: 0.66rem; letter-spacing: 0.14em;
+  font-family: var(--font-jetbrains), monospace; font-size: 0.78rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--muted);
   border: 1px dashed var(--hair); border-radius: 10px; padding: 0.8rem 1.1rem;
 }
@@ -246,8 +255,8 @@ h1, h2, h3 {
   .work-row .preview { border-left: none; border-top: 1px solid var(--hair); min-height: 150px; order: -1; }
 }
 .grow { flex: 1; }
-.stackline { font-family: var(--font-jetbrains), monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.07em; padding-top: 0.9rem; border-top: 1px solid var(--hair-soft); }
-.links { display: flex; gap: 1.05rem; font-family: var(--font-jetbrains), monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.stackline { font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted); letter-spacing: 0.04em; padding-top: 0.95rem; border-top: 1px solid var(--hair-soft); }
+.links { display: flex; gap: 1.05rem; font-family: var(--font-jetbrains), monospace; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .links span { color: var(--accent); }
 .links span::after { content: " \2197"; }
 
@@ -258,13 +267,13 @@ h1, h2, h3 {
 .skillrow dt { font-weight: 600; }
 .skillrow dd { margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .skillrow dd span {
-  font-family: var(--font-jetbrains), monospace; font-size: 0.72rem; color: var(--muted);
-  border: 1px solid var(--hair-soft); border-radius: 6px; padding: 0.25rem 0.6rem; background: var(--surface);
+  font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted);
+  border: 1px solid var(--hair-soft); border-radius: 6px; padding: 0.32rem 0.7rem; background: var(--surface);
 }
 
 /* ---------------- contact ---------------- */
 .contact-mail {
-  display: inline-block; font-family: var(--font-instrument), ui-serif, Georgia, serif;
+  display: inline-block; font-family: var(--font-display-face), ui-serif, Georgia, serif;
   font-size: clamp(1.6rem, 5.5vw, 3rem); letter-spacing: -0.03em; text-decoration: none;
   color: var(--fg); border-bottom: 3px solid var(--accent); padding-bottom: 5px; transition: color .18s;
 }
@@ -281,7 +290,7 @@ h1, h2, h3 {
 }
 .contact-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 16px 34px -24px var(--glow); }
 .contact-card svg { width: 22px; height: 22px; color: var(--accent); margin-bottom: 0.5rem; }
-.contact-card .who { font-family: var(--font-jetbrains), monospace; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.contact-card .who { font-family: var(--font-jetbrains), monospace; font-size: 0.76rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
 .contact-card .handle { font-weight: 560; overflow-wrap: anywhere; }
 .contact-card .arrow { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--muted); transition: color .2s, transform .2s; }
 .contact-card:hover .arrow { color: var(--accent); transform: translate(2px, -2px); }
@@ -290,7 +299,7 @@ h1, h2, h3 {
 .site-footer {
   border-top: 1px solid var(--hair); padding-block: 2.4rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted);
+  font-size: 0.82rem; letter-spacing: 0.04em; color: var(--muted);
 }
 .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 0.7rem 1.5rem; justify-content: space-between; }
 

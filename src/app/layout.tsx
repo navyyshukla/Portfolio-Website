@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/ui/SiteNav";
 import { SiteFooter } from "@/components/ui/SiteFooter";
@@ -14,11 +14,17 @@ import { profile, siteUrl } from "@/content/profile";
  * Three type voices. next/font self-hosts these at build time — no CDN request,
  * no layout shift. Never swap for @fontsource/* or a Google Fonts <link>.
  */
-const instrument = Instrument_Serif({
+/**
+ * Fraunces over Instrument Serif: Instrument is 400-weight only and very high
+ * contrast, so headings went thin and weak at card sizes. Fraunces is variable
+ * with an optical-size axis, so it holds presence at 1.9rem and stays elegant
+ * in the big hero.
+ */
+const display = Fraunces({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["500", "600", "700"],
   display: "swap",
-  variable: "--font-instrument",
+  variable: "--font-display-face",
 });
 
 const inter = Inter({
@@ -49,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrument.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${display.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
         <a

@@ -50,7 +50,7 @@ export function DotField() {
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
-      const step = 26;
+      const step = 24;
       const radius = 190;
       const accent = token("--accent", "#ffb072");
       const base = token("--dot", "#9dafcc");
@@ -64,7 +64,7 @@ export function DotField() {
           f *= f;
           const drift = reduced ? 0 : Math.sin(tick / 50 + x / 105 + y / 82) * 1.05;
           ctx.fillStyle = f > 0.38 ? accent : base;
-          ctx.globalAlpha = 0.1 + f * 0.75;
+          ctx.globalAlpha = 0.16 + f * 0.72;
           ctx.beginPath();
           ctx.arc(x - dx * f * 0.16, y + drift - dy * f * 0.16, 0.9 + f * 2.8, 0, Math.PI * 2);
           ctx.fill();
