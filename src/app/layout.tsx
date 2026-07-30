@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/ui/SiteFooter";
 import { PaletteShim } from "@/components/ui/PaletteShim";
 import { DotField } from "@/components/ui/DotField";
 import { AskFab } from "@/components/ui/AskFab";
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { profile, siteUrl } from "@/content/profile";
 
@@ -57,6 +58,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <SmoothScroll />
         <DotField />
         <div className="page">
           <SiteNav />

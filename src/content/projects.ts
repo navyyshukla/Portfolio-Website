@@ -1,8 +1,10 @@
 /**
- * Projects. Exactly three appear on "/". Depth lives on /work/[slug].
+ * Projects.
  *
- * Every case study answers: problem -> decisions/trade-offs -> outcome. The
- * decisions section carries the most weight with technical readers.
+ * Written from the repositories themselves — `ai_scraper.py`,
+ * `feature_extractor.py`, `train_model.py` and the dashboard README — not from
+ * the résumé. The point of this page is to say what the résumé cannot fit: the
+ * decisions, the trade-offs and the things that turned out to be hard.
  */
 
 export interface CaseStudySection {
@@ -28,32 +30,56 @@ export const projects: Project[] = [
     slug: "other-side-of-india",
     title: "The Other Side of India",
     summary:
-      "A news aggregator that pulls verified Indian news and sorts it into positive and negative categories, so the picture you get is the whole one.",
-    category: "AI · News",
+      "A news pipeline that hunts nine specific kinds of Indian story — four hopeful, five grim — and keeps both sides stocked, so the picture you get is never one-sided by accident.",
+    category: "NLP · Data pipeline",
     timeframe: "Jan 2026",
-    stack: ["Next.js 14", "Python", "DistilBERT", "Feedparser", "GitHub Actions", "Vercel"],
+    stack: [
+      "Python",
+      "DistilBERT",
+      "Hugging Face Transformers",
+      "Supabase (PostgreSQL)",
+      "Next.js",
+      "GitHub Actions",
+      "Vercel",
+    ],
     liveUrl: "https://other-side-india.vercel.app/",
     repoUrl: "https://github.com/navyyshukla/other-side-india",
     caseStudy: [
       {
         heading: "The problem",
         body: [
-          "Coverage of India skews hard in whichever direction a given outlet leans. Read one source and you get a country that is either collapsing or flawless — never the real mix of both.",
-          "The aim was to aggregate news from trusted, verified sources and deliberately surface both sides: what is going wrong and what is going right, side by side.",
+          "Read one Indian outlet and the country is collapsing; read another and nothing is wrong. Both are selections, and neither tells you what is actually happening.",
+          "The aim was a feed that holds both at once — not a neutral average, but two deliberately stocked sides you can read against each other.",
         ],
       },
       {
-        heading: "Decisions and trade-offs",
+        heading: "Taxonomy before model",
         body: [
-          "The core design decision was the taxonomy itself — splitting stories into positive and negative streams and then into five categories on each side. Getting those categories right mattered more than the model did: too broad and everything collapses into one bucket, too narrow and most stories fit nowhere.",
-          "Classification runs on DistilBERT rather than a larger transformer. It is a distilled model, so it is small and fast enough to run inside a scheduled GitHub Actions job at no cost — the accuracy trade-off was worth removing the need for any always-on inference server.",
-          "Retrieval is a scheduled GitHub Actions workflow rather than a live backend. There is no server to keep running, no database to pay for, and the archive is rebuilt on a fixed cadence.",
+          "The categories are the product, so they came first: four on the bright side — AI & Innovation, Altruism, Good Governance, Advocacy — and five on the dark side — Dirty Politics, Impunity, Persecution, Corruption, Atrocity.",
+          "Each category is defined by a hand-written set of six to eight Google News RSS queries rather than by a classifier. \"India tribal rights granted\" and \"India custodial death\" retrieve far more precisely than any model I could train on this budget, and when a category drifts I edit a list instead of retraining.",
+          "That inverts the usual design: retrieval does the categorising, and the model is only a filter.",
+        ],
+      },
+      {
+        heading: "Where the model actually sits",
+        body: [
+          "DistilBERT (`sst-2`) scores sentiment on each headline. Anything under 0.70 confidence is demoted to NEUTRAL rather than forced into a bucket.",
+          "The acceptance rule is deliberately asymmetric: the bright side takes anything that is not NEGATIVE, the dark side anything that is not POSITIVE. Requiring a confident positive on good news threw away most genuine reporting, because plainly-worded reporting of a good outcome reads as neutral to a sentiment model. Letting neutrals through on both sides was the fix.",
+          "A blocklist strips the noise that swamps any India news query — sensex, nifty, quarterly, box office, cricket, trailer. Without it the feed fills with market moves and film promos.",
+        ],
+      },
+      {
+        heading: "Keeping every category alive",
+        body: [
+          "The first version capped the table globally, and the loud categories ate the quiet ones — Atrocity crowded out Advocacy within days.",
+          "Retention is now enforced per category: each keeps its newest 30 and prunes below that independently. No category can starve another, so the nine-way split stays balanced without supervision.",
+          "Dedup runs twice — an in-run link set, then an existence check against Supabase — because the same story surfaces under several queries.",
         ],
       },
       {
         heading: "Outcome",
         body: [
-          "A live archive of 200+ curated stories, refreshed daily by automated workflows, with a responsive Next.js 14 front end.",
+          "Runs entirely on scheduled GitHub Actions against Supabase, with a Next.js front end on Vercel. There is no server to keep alive and no inference host to pay for — the whole thing costs nothing to operate.",
         ],
       },
     ],
@@ -62,30 +88,52 @@ export const projects: Project[] = [
     slug: "music-genre-classifier",
     title: "AI Music Genre Classifier",
     summary:
-      "A CNN that classifies music genres from raw audio, trained on Mel spectrograms and deployed as a live app you can feed your own tracks.",
-    category: "Machine Learning",
+      "Turns raw audio into Mel spectrograms, trains three different CNNs against each other, and ships whichever one actually wins on a held-out test set.",
+    category: "Computer vision · Audio ML",
     timeframe: "Oct — Nov 2025",
-    stack: ["Python", "TensorFlow (Keras)", "Scikit-learn", "Streamlit", "Git"],
+    stack: [
+      "Python",
+      "TensorFlow (Keras)",
+      "librosa",
+      "MobileNetV2",
+      "Scikit-learn",
+      "Streamlit",
+    ],
     liveUrl: "https://ai-music-classifier-app-dep.streamlit.app",
     repoUrl: "https://github.com/navyyshukla/AI-Music-Classifier-App",
     caseStudy: [
       {
         heading: "The problem",
         body: [
-          "Genre is a slippery label — the boundaries between neighbouring genres are blurry even to people. The task was to get a model to make that call from raw audio alone, reliably enough to be worth using.",
+          "Genre boundaries are blurry even to people, and GTZAN is small — a thousand thirty-second clips across ten genres. Small dataset, fuzzy labels: the two conditions most likely to produce a model that memorises rather than learns.",
         ],
       },
       {
-        heading: "Decisions and trade-offs",
+        heading: "Making it an image problem",
         body: [
-          "Audio was converted to Mel spectrograms and treated as an image problem, so a CNN could be used instead of a sequence model. Mel scaling weights the frequency axis the way human hearing does, which is the right prior for a task defined by how music sounds to people.",
-          "The biggest gain came from the dataset rather than the architecture. Advanced audio augmentation was used to build a more robust training set, pushing accuracy up to roughly 72% across ten genres — chasing model size would have cost far more for less.",
+          "Audio is converted to Mel spectrograms with librosa (128 mel bands, 8 kHz ceiling) and saved as clean images with every axis, label and margin stripped — the CNN should see signal, not matplotlib chrome.",
+          "Mel scaling weights frequency the way human hearing does, which is the right prior for a task whose ground truth is human judgement.",
+        ],
+      },
+      {
+        heading: "Growing the dataset instead of the model",
+        body: [
+          "With a thousand clips, more layers would only overfit faster. Each track is therefore augmented three ways — Gaussian noise, time stretch at 0.8×, and a four-semitone pitch shift — quadrupling the training set to roughly four thousand spectrograms.",
+          "All three augmentations preserve genre while changing the surface: a slower, noisier, pitch-shifted rock track is still rock. That is exactly the invariance the model needs.",
+        ],
+      },
+      {
+        heading: "Three models, then pick",
+        body: [
+          "Rather than guess an architecture, the pipeline trains three and compares them on the same held-out set: a baseline CNN, a deeper CNN with dropout at 0.3 and 0.5, and MobileNetV2 with frozen ImageNet weights and a fresh head.",
+          "The validation split is halved again into a real test set, so model selection never touches the data the final number is reported on — the most common way accuracy claims quietly become fiction.",
+          "EarlyStopping restores the best weights rather than the last, and ReduceLROnPlateau drops the learning rate 5× when validation loss stalls. The winner is saved automatically along with the class list, so the app never needs to know which architecture won.",
         ],
       },
       {
         heading: "Outcome",
         body: [
-          "A Streamlit app that takes a user's own audio and returns a real-time prediction with visualisations, holding up well across around ten genres.",
+          "Around 72% test accuracy across ten genres, served as a Streamlit app that takes your own audio and returns a live prediction with visualisations. The class list is read from the folder structure, so adding a genre needs no code change.",
         ],
       },
     ],
@@ -94,30 +142,47 @@ export const projects: Project[] = [
     slug: "stock-prediction-dashboard",
     title: "Stock Price Prediction Dashboard",
     summary:
-      "A containerised dashboard that visualises stock data in real time and forecasts prices with SVR and Random Forest models.",
-    category: "Data · ML",
+      "An interactive dashboard that pulls any ticker, charts it with technical indicators, and forecasts forward using an ensemble of three regressors.",
+    category: "Data viz · ML",
     timeframe: "Aug 2025",
-    stack: ["Python", "Dash", "Plotly", "Docker", "Hugging Face Spaces"],
+    stack: [
+      "Python",
+      "Dash",
+      "Plotly",
+      "Scikit-learn",
+      "yfinance",
+      "Docker",
+      "Gunicorn",
+      "Hugging Face Spaces",
+    ],
     liveUrl: "https://huggingface.co/spaces/navyyshukla/stock-prediction-app",
     repoUrl: "https://github.com/navyyshukla/stock_prediction_dash_app",
     caseStudy: [
       {
         heading: "The problem",
         body: [
-          "Stock analysis tools tend to be either a static chart or a black-box prediction. The goal was one surface that does both — live visualisation alongside a forecast you can actually see the shape of.",
+          "Stock tools tend to be either a static chart or a black-box number. The goal was one surface where you can see the history, the indicator and the forecast together, and judge the forecast against the thing it came from.",
         ],
       },
       {
-        heading: "Decisions and trade-offs",
+        heading: "An ensemble, not a neural net",
         body: [
-          "Support Vector Regression and Random Forest were chosen over a deep model. On this much data a neural network would mostly overfit, and these two train in seconds, which keeps the dashboard interactive rather than something you wait on.",
-          "The whole system was containerised with Docker and deployed to Hugging Face Spaces, so the environment that runs in production is the same one it was built in, at no hosting cost.",
+          "Forecasting runs on three regressors together — Support Vector Regression, Random Forest and Gradient Boosting — rather than a deep model.",
+          "On a few years of daily prices a neural network mostly memorises noise, and these three fail differently: SVR is smooth and biased, the tree ensembles are jumpy and low-bias. Averaging them cancels a good deal of individual error.",
+          "They also train in seconds, which is what lets the dashboard stay interactive — you change the ticker and the horizon and get an answer immediately, instead of waiting on a job.",
+        ],
+      },
+      {
+        heading: "Context, not just a line",
+        body: [
+          "Entering a ticker pulls the company's logo, name and business summary from yfinance, so you know what you are looking at before you read the chart.",
+          "Historical open and close render over any date range, with a 20-day exponential moving average layered on — the forecast is always shown against a trend line rather than in isolation.",
         ],
       },
       {
         heading: "Outcome",
         body: [
-          "A live, end-to-end dashboard running as a public service, combining real-time visualisation with SVR and Random Forest forecasting.",
+          "Containerised with Docker and served by Gunicorn on Hugging Face Spaces, so the environment that runs in production is the one it was built in. Works for US and Indian tickers alike.",
         ],
       },
     ],

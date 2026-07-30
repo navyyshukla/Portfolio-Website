@@ -70,13 +70,16 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --ground: #e9ecf4; --ground-2: #e1e6f0; --surface: #ffffff; --raised: #f5f8fd;
-    --hair: #c6d0e2; --hair-soft: #dae1ee;
-    --fg: #0a1120; --fg-dim: #2c3a54; --muted: #54637f;
-    --accent: #c2600f; --accent-2: #a83a06;
-    --accent-soft: rgba(194, 96, 15, 0.12);
-    --accent-line: rgba(194, 96, 15, 0.38);
-    --on-accent: #ffffff; --glow: rgba(194, 96, 15, 0.32); --dot: #8496b5;
+    /* Ground carries a touch of the accent's warmth so it reads as chosen
+       rather than as default cold grey. Accent darkened to hold AA contrast
+       as text on the ground (was #c2600f, ~3.4:1 — now ~4.8:1). */
+    --ground: #eeeae4; --ground-2: #e6e1d9; --surface: #ffffff; --raised: #faf8f5;
+    --hair: #d5cec4; --hair-soft: #e4ded6;
+    --fg: #14100c; --fg-dim: #3d3730; --muted: #5f584f;
+    --accent: #a34b06; --accent-2: #8a3a03;
+    --accent-soft: rgba(163, 75, 6, 0.10);
+    --accent-line: rgba(163, 75, 6, 0.34);
+    --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #9b9186;
     color-scheme: light;
   }
 }

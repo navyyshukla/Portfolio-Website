@@ -39,26 +39,72 @@ const PALETTE = {
 
 const STEP = 9; // world units between stages
 
+/**
+ * A softened box. Real bevels need BufferGeometryUtils; instead the corners are
+ * knocked off by scaling a slightly-subdivided box, which reads as "moulded
+ * plastic toy" rather than "Minecraft cube" at this camera distance.
+ */
 function box(
   w: number,
   h: number,
   d: number,
   color: number,
-  flat = true,
+  smooth = false,
 ): THREE.Mesh {
-  const geo = new THREE.BoxGeometry(w, h, d);
-  const mat = new THREE.MeshLambertMaterial({ color, flatShading: flat });
+  const geo = new THREE.BoxGeometry(w, h, d, 2, 2, 2);
+  const pos = geo.attributes.position;
+  const r = Math.min(w, h, d) * 0.16;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i += 1) {
+    v.fromBufferAttribute(pos, i);
+    // pull corner vertices inward along each axis
+    v.x -= Math.sign(v.x) * (Math.abs(v.x) > w / 4 ? r : 0) * 0.5;
+    v.y -= Math.sign(v.y) * (Math.abs(v.y) > h / 4 ? r : 0) * 0.5;
+    v.z -= Math.sign(v.z) * (Math.abs(v.z) > d / 4 ? r : 0) * 0.5;
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.82,
+    metalness: 0.02,
+    flatShading: !smooth,
+  });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   return mesh;
 }
 
-function cyl(rt: number, rb: number, h: number, seg: number, color: number): THREE.Mesh {
-  const geo = new THREE.CylinderGeometry(rt, rb, h, seg);
-  const mat = new THREE.MeshLambertMaterial({ color, flatShading: true });
+/** Smooth capsule — used for limbs and torso so the boy is not a stack of cubes. */
+function capsule(radius: number, length: number, color: number): THREE.Mesh {
+  const geo = new THREE.CapsuleGeometry(radius, length, 4, 12);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.75, metalness: 0.02 });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
+  return mesh;
+}
+
+/** Smooth sphere — head. */
+function ball(radius: number, color: number): THREE.Mesh {
+  const geo = new THREE.SphereGeometry(radius, 20, 16);
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.02 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  return mesh;
+}
+
+function cyl(rt: number, rb: number, h: number, seg: number, color: number): THREE.Mesh {
+  const geo = new THREE.CylinderGeometry(rt, rb, h, seg);
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.8,
+    metalness: 0.02,
+    flatShading: seg <= 8,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
   return mesh;
 }
 
@@ -66,26 +112,36 @@ function cyl(rt: number, rb: number, h: number, seg: number, color: number): THR
 export function makeBoy() {
   const group = new THREE.Group();
 
-  const legL = box(0.34, 0.9, 0.34, PALETTE.trousers);
-  const legR = legL.clone();
-  legL.position.set(-0.22, 0.45, 0);
-  legR.position.set(0.22, 0.45, 0);
+  const legL = capsule(0.15, 0.62, PALETTE.trousers);
+  const legR = capsule(0.15, 0.62, PALETTE.trousers);
+  legL.position.set(-0.2, 0.5, 0);
+  legR.position.set(0.2, 0.5, 0);
 
-  const torso = box(0.9, 1.0, 0.5, PALETTE.shirt);
-  torso.position.y = 1.4;
+  const torso = capsule(0.32, 0.6, PALETTE.shirt);
+  torso.position.y = 1.42;
+  torso.scale.set(1.15, 1, 0.85);
 
-  const armL = box(0.24, 0.85, 0.24, PALETTE.skin);
-  const armR = armL.clone();
-  armL.position.set(-0.62, 1.45, 0);
-  armR.position.set(0.62, 1.45, 0);
+  const armL = capsule(0.105, 0.58, PALETTE.skin);
+  const armR = capsule(0.105, 0.58, PALETTE.skin);
+  armL.position.set(-0.46, 1.48, 0);
+  armR.position.set(0.46, 1.48, 0);
 
-  const head = box(0.72, 0.68, 0.66, PALETTE.skin);
-  head.position.y = 2.25;
+  const head = ball(0.34, PALETTE.skin);
+  head.position.y = 2.12;
+  head.scale.set(1, 1.06, 0.96);
 
-  const hair = box(0.78, 0.2, 0.7, PALETTE.hair);
-  hair.position.y = 2.55;
+  const hair = ball(0.35, PALETTE.hair);
+  hair.position.y = 2.2;
+  hair.scale.set(1.02, 0.62, 1.02);
 
-  group.add(legL, legR, torso, armL, armR, head, hair);
+  const shoeL = capsule(0.11, 0.14, PALETTE.hair);
+  const shoeR = capsule(0.11, 0.14, PALETTE.hair);
+  shoeL.rotation.z = Math.PI / 2;
+  shoeR.rotation.z = Math.PI / 2;
+  shoeL.position.set(-0.2, 0.11, 0.05);
+  shoeR.position.set(0.2, 0.11, 0.05);
+
+  group.add(legL, legR, torso, armL, armR, head, hair, shoeL, shoeR);
   group.userData = { legL, legR, armL, armR, torso };
   return group;
 }
@@ -179,23 +235,38 @@ export function createScene(
   stages: Stage[],
   reduced: boolean,
 ): SceneHandle {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  // Higher cap than the dot field: this is a deliberate showpiece, and the
+  // brief was that it can afford to be expensive.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Tone mapping + sRGB output is what stops flat-lit primitives looking like
+  // untextured Minecraft blocks.
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0b1220, 40, 90);
+  scene.background = new THREE.Color(0x9fd8f0);
+  scene.fog = new THREE.Fog(0x9fd8f0, 46, 96);
 
   // True isometric: orthographic camera on a 45/35.264 degree axis.
   const camera = new THREE.OrthographicCamera(-12, 12, 7, -7, 0.1, 200);
   const camOffset = new THREE.Vector3(16, 16, 16);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-  const sun = new THREE.DirectionalLight(0xfff0d8, 1.15);
+  // Sky/ground bounce gives the shadowed sides colour instead of flat grey.
+  scene.add(new THREE.HemisphereLight(0xbfe4ff, 0x4e7a3a, 1.15));
+  const sun = new THREE.DirectionalLight(0xfff2dc, 2.1);
   sun.position.set(18, 30, 12);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0006;
+  sun.shadow.normalBias = 0.02;
+  // Cool rim from behind separates silhouettes from the sky.
+  const rim = new THREE.DirectionalLight(0x9dc6ff, 0.5);
+  rim.position.set(-16, 12, -18);
+  scene.add(rim);
   const d = 40;
   sun.shadow.camera.left = -d;
   sun.shadow.camera.right = d;
