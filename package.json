@@ -21,6 +21,7 @@
     "not dead"
   ],
   "dependencies": {
+    "@types/three": "^0.185.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "cmdk": "^1.1.1",
@@ -30,7 +31,8 @@
     "react-markdown": "^10.1.0",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.1",

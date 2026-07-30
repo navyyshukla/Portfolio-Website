@@ -36,7 +36,7 @@ export const profile: Profile = {
   location: "Bengaluru, India",
   email: "naivedya9876@gmail.com",
   resumeHref: "/resume.pdf",
-  photo: "/photo.jpg",
+  photo: "/photo.png",
   openTo: "Open to software engineering roles",
   socials: [
     { label: "GitHub", href: "https://github.com/navyyshukla" },
