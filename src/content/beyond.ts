@@ -1,52 +1,79 @@
 /**
- * Everything that is not the job search: hobbies, free time, extracurriculars.
+ * Everything that is not the job search: hobbies, free time, extracurriculars,
+ * and the life-story path.
  *
  * This content renders ONLY on /beyond-code. It must never appear on "/".
- * Write it in your own voice — this is the page where personality is the point.
  */
 
 export interface BeyondEntry {
   title: string;
-  /** e.g. "Hobby", "Extracurricular", "Community". Used as a small label. */
   kind: string;
   body: string;
 }
 
+/** One milestone on the story path. Oldest first. */
+export interface StoryStage {
+  year: string;
+  title: string;
+  detail?: string;
+}
+
 export interface BeyondContent {
-  /** Short framing sentence at the top of the page. */
   intro: string;
   entries: BeyondEntry[];
-  /** Copy for the game section. The game itself is lazy-loaded. */
-  game: {
+  story: {
     title: string;
-    /** One or two sentences: what it is, and that it is entirely optional. */
     blurb: string;
-    /** Shown instead of the game when reduced motion is preferred. */
     reducedMotionNote: string;
+    stages: StoryStage[];
   };
 }
 
 export const beyond: BeyondContent = {
-  // TODO(content): all of the below.
   intro:
-    "TODO: A sentence framing this page — the things you do that have nothing to do with a job title.",
+    "The parts that have nothing to do with a job title — what I read, what I watch, and where I've been.",
   entries: [
     {
-      title: "TODO: Something you do",
-      kind: "TODO: Hobby",
-      body: "TODO: A few sentences. Specific beats generic.",
+      title: "Reading",
+      kind: "Hobby",
+      body: "Articles and books, fairly indiscriminately. It is where most of the questioning starts.",
     },
     {
-      title: "TODO: Something else",
-      kind: "TODO: Extracurricular",
-      body: "TODO",
+      title: "Watching sport like a nerd",
+      kind: "Hobby",
+      body: "Football, Formula 1 and cricket — less for the result than for how the thing was won.",
+    },
+    {
+      title: "Travelling",
+      kind: "Free time",
+      body: "Mostly an excuse to spend proper time with friends and family.",
+    },
+    {
+      title: "Exploring new software",
+      kind: "Hobby",
+      body: "Trying whatever has just shipped, to see how other people solved the problem.",
+    },
+    {
+      title: "Football captain, DPS Bhilai",
+      kind: "Extracurricular",
+      body: "Captained the school football team.",
     },
   ],
-  game: {
-    title: "TODO: Game name",
+  story: {
+    title: "My story, as a path",
     blurb:
-      "TODO: What it is, in one or two sentences. Make clear it is entirely optional.",
+      "A path of milestones from where it started to where things stand now. Press next and the character walks on, growing as the years go by. Entirely optional.",
     reducedMotionNote:
-      "This game uses motion. You have reduced motion enabled, so it starts paused — press Play if you would like to run it anyway.",
+      "This uses motion. You have reduced motion enabled, so the character moves between stages instantly instead of walking.",
+    stages: [
+      { year: "2004", title: "Born in Chhattisgarh" },
+      { year: "2008", title: "Joined Delhi Public School, Bhilai" },
+      { year: "2014", title: "Became a school appointee", detail: "In class 5." },
+      { year: "2018", title: "Made football team captain" },
+      { year: "2022", title: "Finished school at DPS Bhilai" },
+      { year: "2022", title: "Joined BMS College of Engineering" },
+      { year: "2026", title: "Joined CreatorJoy.com as a Software Engineer" },
+      { year: "2026", title: "Graduated from BMS College of Engineering" },
+    ],
   },
 };

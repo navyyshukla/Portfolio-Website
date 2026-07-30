@@ -2,10 +2,8 @@
  * Identity and positioning.
  *
  * `positioning` is the single most important string on the site: it is what a
- * recruiter reads in the first two seconds, and it should answer
- * "what do you do, for whom, and with what" — role + domain + stack.
- * Keep it to one sentence and make sure it contains the stack keywords a
- * recruiter would screen against.
+ * recruiter reads in the first two seconds, and it carries the stack keywords
+ * they screen against.
  */
 
 export interface SocialLink {
@@ -15,34 +13,43 @@ export interface SocialLink {
 
 export interface Profile {
   name: string;
-  /** Short role label, e.g. shown under the name. */
   role: string;
-  /** The one-line positioning statement. Role + domain + stack. */
   positioning: string;
-  /** 2-4 sentences. Used on /beyond-code, not in the hero. */
+  /** In his own voice. Used on /beyond-code and by the assistant — not the hero. */
   bio: string;
   location: string;
   email: string;
-  /** Path to the CV PDF in /public, or an external URL. */
-  cvHref: string;
+  /** PDF in /public. */
+  resumeHref: string;
+  /** Portrait in /public. Replace the file to change the photo; no code change. */
+  photo: string;
+  openTo: string;
   socials: SocialLink[];
 }
 
 export const profile: Profile = {
-  // TODO(content): replace every field below.
-  name: "TODO: Your Name",
-  role: "TODO: e.g. Software Engineer",
+  name: "Naivedya Shukla",
+  role: "Software Engineer",
   positioning:
-    "TODO: One sentence — what you build, for whom, with what stack. This is the first thing a recruiter reads.",
-  bio: "TODO: 2-4 sentences in your own voice. This appears on /beyond-code, not in the hero.",
-  location: "TODO: City, Country",
-  email: "TODO: you@example.com",
-  cvHref: "/cv.pdf",
+    "Software Engineer building high-throughput system architectures, resilient APIs, and intelligent AI/ML applications with Python, Next.js, FastAPI and TensorFlow.",
+  bio: "An enthusiastic learner who tends to question the things that actually matter, then goes looking for the right way to solve them.",
+  location: "Bengaluru, India",
+  email: "naivedya9876@gmail.com",
+  resumeHref: "/resume.pdf",
+  photo: "/photo.jpg",
+  openTo: "Open to software engineering roles",
   socials: [
-    { label: "GitHub", href: "TODO: https://github.com/..." },
-    { label: "LinkedIn", href: "TODO: https://linkedin.com/in/..." },
+    { label: "GitHub", href: "https://github.com/navyyshukla" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/naivedyashukla" },
+    { label: "Instagram", href: "https://www.instagram.com/navyyshukla/" },
   ],
 };
 
-/** Absolute site origin. Used for canonical URLs, sitemap and OG images. */
-export const siteUrl = "https://example.com"; // TODO(content): real domain
+/**
+ * Absolute site origin — used for canonical URLs, the sitemap and OG images.
+ *
+ * TODO: no custom domain yet. Replace this with the real deployment URL (the
+ * Vercel one, or a bought domain) before going live — canonical tags and the
+ * sitemap point here, so a wrong value quietly harms search indexing.
+ */
+export const siteUrl = "https://naivedyashukla.vercel.app";

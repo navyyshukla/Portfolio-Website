@@ -47,7 +47,7 @@ export function buildCorpus(): string {
           `Timeframe: ${p.timeframe}`,
           `Stack: ${p.stack.join(", ")}`,
           `Summary: ${p.summary}`,
-          `Outcome: ${p.outcome}`,
+          `Category: ${p.category}`,
           p.repoUrl ? `Repository: ${p.repoUrl}` : null,
           p.liveUrl ? `Live: ${p.liveUrl}` : null,
           ...p.caseStudy.map((s) => `### ${s.heading}\n${s.body.join("\n")}`),

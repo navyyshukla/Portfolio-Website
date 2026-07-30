@@ -2,20 +2,15 @@ import { profile } from "@/content/profile";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-border py-8">
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 px-5 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-        <p>
+    <footer className="site-footer">
+      <div className="wrap">
+        <span>
           © {new Date().getFullYear()} {profile.name}
-        </p>
-        <ul className="flex gap-4">
+        </span>
+        <ul className="flex list-none gap-6 p-0 m-0">
           {profile.socials.map((s) => (
             <li key={s.label}>
-              <a
-                href={s.href}
-                className="hover:text-fg"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
+              <a href={s.href} target="_blank" rel="noopener noreferrer">
                 {s.label}
               </a>
             </li>

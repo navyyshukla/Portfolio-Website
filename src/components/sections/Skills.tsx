@@ -1,27 +1,22 @@
 import { skillGroups } from "@/content/skills";
 
-/** Scannable keyword block. No progress bars — nobody believes them. */
+/** Scannable keyword block for screening. No progress bars. */
 export function Skills() {
   return (
-    <section
-      id="skills"
-      aria-labelledby="skills-heading"
-      className="mx-auto max-w-3xl px-5 py-12"
-    >
-      <h2
-        id="skills-heading"
-        className="text-sm font-semibold uppercase tracking-widest text-muted"
-      >
-        Skills
-      </h2>
-      <dl className="mt-6 space-y-4">
+    <section id="skills" aria-labelledby="skills-heading" className="section wrap">
+      <div className="section-head reveal">
+        <p className="eyebrow">03 — Stack</p>
+        <h2 id="skills-heading">Skills</h2>
+      </div>
+
+      <dl className="skills">
         {skillGroups.map((group) => (
-          <div key={group.label} className="sm:flex sm:gap-6">
-            <dt className="w-32 shrink-0 text-sm font-semibold">
-              {group.label}
-            </dt>
-            <dd className="font-mono text-sm text-muted">
-              {group.items.join(" · ")}
+          <div key={group.label} className="skillrow reveal">
+            <dt>{group.label}</dt>
+            <dd>
+              {group.items.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
             </dd>
           </div>
         ))}

@@ -1,24 +1,35 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/ui/SiteNav";
 import { SiteFooter } from "@/components/ui/SiteFooter";
 import { PaletteShim } from "@/components/ui/PaletteShim";
+import { DotField } from "@/components/ui/DotField";
+import { AskFab } from "@/components/ui/AskFab";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { profile, siteUrl } from "@/content/profile";
 
-// next/font self-hosts at build time and generates fallback metrics that
-// prevent CLS. Never swap this for @fontsource/* or a Google Fonts <link>.
+/**
+ * Three type voices. next/font self-hosts these at build time — no CDN request,
+ * no layout shift. Never swap for @fontsource/* or a Google Fonts <link>.
+ */
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  variable: "--font-instrument",
+});
+
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "500", "600"],
   display: "swap",
   variable: "--font-inter",
 });
 
-const mono = JetBrains_Mono({
+const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "700"],
   display: "swap",
   preload: false,
   variable: "--font-jetbrains",
@@ -35,17 +46,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
-      <body className="font-sans">
+    <html
+      lang="en"
+      className={`${instrument.variable} ${inter.variable} ${jetbrains.variable}`}
+    >
+      <body>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-surface focus:px-3 focus:py-2"
         >
           Skip to content
         </a>
-        <SiteNav />
-        <main id="main">{children}</main>
-        <SiteFooter />
+        <DotField />
+        <div className="page">
+          <SiteNav />
+          <main id="main">{children}</main>
+          <SiteFooter />
+        </div>
+        <AskFab />
         {/* Keydown listener only — the palette itself is lazy-loaded. */}
         <PaletteShim />
         <script
