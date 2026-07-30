@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/* Tailwind v4 generates utilities from these tokens: `bg-surface`,
+   `text-muted`, `border-border`, `font-mono`, and so on. Do NOT write the v3
+   shorthand `bg-[--color-surface]` — in v4 that emits `background:--color-x`,
+   which is invalid CSS and silently renders unstyled. */
+@theme {
+  --color-bg: #0b0c0e;
+  --color-surface: #131519;
+  --color-border: #24272e;
+  --color-fg: #eceef1;
+  --color-muted: #9aa1ac;
+  --color-accent: #7dd3a0;
+}
+
+/* `inline` so the generated utilities reference the next/font variables at use
+   site rather than freezing their value here. */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  /* `clip` not `hidden` — `hidden` creates a scroll container that silently
+     breaks `position: sticky` further down the tree. */
+  overflow-x: clip;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Global guardrail: honour the OS reduced-motion setting for every animation,
+   including any a component forgets to gate. WCAG 2.2 SC 2.3.3 / technique C39. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
