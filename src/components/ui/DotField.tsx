@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 /**
@@ -28,8 +29,12 @@ import { useEffect, useRef } from "react";
  */
 export function DotField() {
   const ref = useRef<HTMLCanvasElement | null>(null);
+  const pathname = usePathname();
+  // The résumé is a document to be read — texture over it hurts legibility.
+  const suppressed = pathname === "/resume";
 
   useEffect(() => {
+    if (suppressed) return;
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -198,7 +203,8 @@ export function DotField() {
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [suppressed]);
 
+  if (suppressed) return null;
   return <canvas id="field" ref={ref} aria-hidden="true" />;
 }

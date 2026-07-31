@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { profile } from "@/content/profile";
 import { BackButton } from "@/components/ui/BackButton";
+import { ResumeViewer } from "@/components/ui/ResumeViewer";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -35,18 +36,7 @@ export default function ResumePage() {
         </div>
       </div>
 
-      <div className="resume-frame">
-        <object data={profile.resumeHref} type="application/pdf" aria-label="Résumé">
-          {/* Shown when the browser cannot render a PDF inline — mobile Safari,
-              mostly. Never leaves the visitor with a blank box. */}
-          <div className="resume-fallback">
-            <p>Your browser can&rsquo;t display the PDF inline.</p>
-            <a className="btn btn-primary" href={profile.resumeHref} download>
-              Download the résumé ↓
-            </a>
-          </div>
-        </object>
-      </div>
+      <ResumeViewer src={profile.resumeHref} name={profile.name} />
     </div>
   );
 }

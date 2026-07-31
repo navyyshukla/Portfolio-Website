@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/ui/SiteNav";
 import { SiteFooter } from "@/components/ui/SiteFooter";
 import { PaletteShim } from "@/components/ui/PaletteShim";
 import { DotField } from "@/components/ui/DotField";
-import { AskFab } from "@/components/ui/AskFab";
+import { Assistant } from "@/components/ui/Assistant";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { profile, siteUrl } from "@/content/profile";
@@ -71,7 +71,7 @@ export default function RootLayout({
           <main id="main">{children}</main>
           <SiteFooter />
         </div>
-        <AskFab />
+        <Assistant />
         {/* Keydown listener only — the palette itself is lazy-loaded. */}
         <PaletteShim />
         <script
