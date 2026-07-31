@@ -35,7 +35,9 @@ export function ResumeViewer({ src, name }: { src: string; name: string }) {
 
   const frame = (
     <iframe
-      src={`${src}#view=FitH&toolbar=1`}
+      // No #view / #toolbar params: those override the browser's own viewer
+      // chrome. Plain src restores the native zoom / download panel.
+      src={src}
       title={`${name} — résumé`}
       className="resume-iframe"
     />
@@ -44,15 +46,22 @@ export function ResumeViewer({ src, name }: { src: string; name: string }) {
   return (
     <>
       <div className="resume-frame">
+        {frame}
+        {/* The browser draws its own zoom / download toolbar inside the iframe
+            and page scripts cannot add to it — that UI is not reachable from
+            here. This sits in the same bottom region instead, as a matching
+            icon control. */}
         <button
           type="button"
           className="resume-expand"
           onClick={() => setExpanded(true)}
           aria-label="Expand the résumé to full screen"
+          title="Expand"
         >
-          ⤢ Expand
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+          </svg>
         </button>
-        {frame}
         <noscript>
           <a href={src}>Download the résumé (PDF)</a>
         </noscript>
