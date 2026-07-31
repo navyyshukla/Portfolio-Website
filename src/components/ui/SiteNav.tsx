@@ -27,15 +27,9 @@ export function SiteNav() {
               <Link href="/#contact">Contact</Link>
             </li>
             <li>
-              <a
-                href={profile.resumeHref}
-                className="is-resume"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Résumé, PDF, opens in a new tab"
-              >
+              <Link href="/resume" className="is-resume">
                 Résumé
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

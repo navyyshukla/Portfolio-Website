@@ -20,18 +20,12 @@ export function Hero() {
           <p className="hero-loc">{profile.location}</p>
 
           <div className="cta-row">
-            <Link className="btn btn-primary" href="/#work">
+            <Link className="btn btn-primary" href="/#experience">
               Explore my work ↓
             </Link>
-            <a
-              className="btn btn-ghost"
-              href={profile.resumeHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Résumé, PDF, opens in a new tab"
-            >
-              Résumé ↗
-            </a>
+            <Link className="btn btn-ghost" href="/resume">
+              Résumé
+            </Link>
           </div>
         </div>
 

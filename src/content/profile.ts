@@ -9,6 +9,8 @@
 export interface SocialLink {
   label: string;
   href: string;
+  /** Short display form — must fit one line in a quarter-width contact card. */
+  handle: string;
 }
 
 export interface Profile {
@@ -39,9 +41,17 @@ export const profile: Profile = {
   photo: "/photo.png",
   openTo: "Open to software engineering roles",
   socials: [
-    { label: "GitHub", href: "https://github.com/navyyshukla" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/naivedyashukla" },
-    { label: "Instagram", href: "https://www.instagram.com/navyyshukla/" },
+    { label: "GitHub", href: "https://github.com/navyyshukla", handle: "@navyyshukla" },
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/naivedyashukla",
+      handle: "/naivedyashukla",
+    },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/navyyshukla/",
+      handle: "@navyyshukla",
+    },
   ],
 };
 

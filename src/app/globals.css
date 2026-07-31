@@ -117,18 +117,22 @@ h1, h2, h3 {
 }
 .eyebrow--accent { color: var(--accent); }
 
-/* Surfaces are translucent so the dot field reads through the whole page
-   rather than surviving only in the side margins. */
-.work-row, .contact-card, .beyond-list li, .story-teaser, .role-tech li,
-.skillrow dd span, .portrait {
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
-  backdrop-filter: blur(3px);
+/* ---------------- global dot field ----------------
+   Painted OVER the page, not behind it. Behind, every opaque card hid it and
+   it only survived in the side margins. As a blended overlay it reads across
+   the entire surface — multiply darkens in light mode, screen lightens in
+   dark — while staying a texture rather than something you read through. */
+#field {
+  position: fixed; inset: 0; z-index: 5; pointer-events: none;
+  mix-blend-mode: multiply; opacity: 0.55;
 }
-.nav { backdrop-filter: blur(16px); }
-
-/* ---------------- global dot field ---------------- */
-#field { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+@media (prefers-color-scheme: dark) {
+  #field { mix-blend-mode: screen; opacity: 0.5; }
+}
 .page { position: relative; z-index: 1; }
+/* The assistant orb and the nav must stay above the texture. */
+.nav { z-index: 40; }
+.ask-fab { z-index: 60; }
 
 /* ---------------- nav ---------------- */
 .nav {
@@ -291,7 +295,7 @@ h1, h2, h3 {
 .contact-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 16px 34px -24px var(--glow); }
 .contact-card svg { width: 22px; height: 22px; color: var(--accent); margin-bottom: 0.5rem; }
 .contact-card .who { font-family: var(--font-jetbrains), monospace; font-size: 0.76rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
-.contact-card .handle { font-weight: 560; overflow-wrap: anywhere; }
+.contact-card .handle { font-weight: 560; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact-card .arrow { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--muted); transition: color .2s, transform .2s; }
 .contact-card:hover .arrow { color: var(--accent); transform: translate(2px, -2px); }
 
@@ -429,4 +433,22 @@ h1, h2, h3 {
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------------- resume page ---------------- */
+.resume-page { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 6vw, 4.5rem); }
+.resume-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.75rem;
+}
+.resume-head h1 { margin: 0.35rem 0 0; font-size: var(--t-h2); }
+.resume-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.resume-frame {
+  border: 1px solid var(--hair); border-radius: var(--r); overflow: hidden;
+  background: var(--surface); height: min(82vh, 1100px);
+}
+.resume-frame object { width: 100%; height: 100%; display: block; }
+.resume-fallback {
+  display: grid; place-items: center; gap: 1rem; height: 100%;
+  text-align: center; padding: 2rem; color: var(--fg-dim);
 }

@@ -20,14 +20,12 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-function handleFor(href: string) {
-  return href.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-}
-
 export function Contact() {
   const channels = [
     ...profile.socials.filter((s) => s.label !== "Instagram"),
-    { label: "Gmail", href: `mailto:${profile.email}` },
+    // Local part only — the full address is already the big mailto above, and
+    // "naivedya9876@gmail.com" cannot fit one line in a quarter-width card.
+    { label: "Gmail", href: `mailto:${profile.email}`, handle: "naivedya9876" },
     ...profile.socials.filter((s) => s.label === "Instagram"),
   ];
 
@@ -61,11 +59,7 @@ export function Contact() {
               {ICONS[channel.label]}
             </svg>
             <span className="who">{channel.label}</span>
-            <span className="handle">
-              {channel.href.startsWith("mailto:")
-                ? profile.email
-                : handleFor(channel.href)}
-            </span>
+            <span className="handle">{channel.handle}</span>
             <span className="arrow" aria-hidden="true">
               ↗
             </span>

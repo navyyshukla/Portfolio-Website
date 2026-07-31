@@ -27,7 +27,6 @@ export function SelectedWork() {
               <p className="links">
                 {project.liveUrl ? <span>Live</span> : null}
                 {project.repoUrl ? <span>Code</span> : null}
-                <span>Case study</span>
               </p>
             </div>
             <div className="preview">
