@@ -77,7 +77,15 @@ export function ChatPopup({ onClose }: { onClose: () => void }) {
         </span>
       </header>
 
-      <div className="chat-pop-body" ref={transcript} aria-live="polite" aria-atomic="false">
+      <div
+        className="chat-pop-body"
+        ref={transcript}
+        aria-live="polite"
+        aria-atomic="false"
+        /* Lenis owns wheel events globally; this opts the transcript out so the
+           wheel scrolls the chat and never leaks to the page. */
+        data-lenis-prevent
+      >
         {messages.length === 0 ? (
           <div className="chat-empty">
             <p>

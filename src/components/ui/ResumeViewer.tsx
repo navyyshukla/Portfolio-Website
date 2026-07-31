@@ -135,6 +135,7 @@ export function ResumeViewer({ src, name }: { src: string; name: string }) {
       {expanded ? (
         <div
           className="resume-overlay"
+          data-lenis-prevent
           onClick={() => setExpanded(false)}
           role="dialog"
           aria-modal="true"

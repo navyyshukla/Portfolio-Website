@@ -543,7 +543,15 @@ h1, h2, h3 {
 }
 .iconbtn:hover { background: var(--ground-2); color: var(--fg); }
 
-.chat-pop-body { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.9rem; }
+/* `overscroll-behavior: contain` stops scroll chaining: with the pointer over
+   the transcript the wheel scrolls the chat and never leaks to the page, even
+   at the top or bottom of the list. */
+.chat-pop-body {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain;
+  padding: 1rem; display: flex; flex-direction: column; gap: 0.9rem;
+}
+/* Same for the whole panel, so the composer and header don't chain either. */
+.chat-pop { overscroll-behavior: contain; }
 .chat-empty p { margin: 0 0 0.9rem; color: var(--muted); font-size: 0.92rem; }
 .chat-empty ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
 .chat-empty button {
