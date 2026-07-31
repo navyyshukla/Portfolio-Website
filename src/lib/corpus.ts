@@ -96,6 +96,10 @@ export function buildCorpus(): string {
     [
       beyond.intro,
       ...beyond.entries.map((e) => `## ${e.title} (${e.kind})\n${e.body}`),
+      "## Life milestones",
+      ...beyond.story.stages.map(
+        (st) => `${st.year}: ${st.title}${st.detail ? ` — ${st.detail}` : ""}`,
+      ),
     ].join("\n\n"),
   );
 
