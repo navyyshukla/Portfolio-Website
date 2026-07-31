@@ -89,7 +89,7 @@ export const projects: Project[] = [
     title: "AI Music Genre Classifier",
     summary:
       "Turns raw audio into Mel spectrograms, trains three different CNNs against each other, and ships whichever one actually wins on a held-out test set.",
-    category: "Computer vision · Audio ML",
+    category: "Audio ML",
     timeframe: "Oct — Nov 2025",
     stack: [
       "Python",

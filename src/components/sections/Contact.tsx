@@ -25,7 +25,7 @@ export function Contact() {
     ...profile.socials.filter((s) => s.label !== "Instagram"),
     // Local part only — the full address is already the big mailto above, and
     // "naivedya9876@gmail.com" cannot fit one line in a quarter-width card.
-    { label: "Gmail", href: `mailto:${profile.email}`, handle: "naivedya9876" },
+    { label: "Gmail", href: `mailto:${profile.email}`, handle: "naivedya9876@gmail.com" },
     ...profile.socials.filter((s) => s.label === "Instagram"),
   ];
 

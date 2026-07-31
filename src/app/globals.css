@@ -123,11 +123,16 @@ h1, h2, h3 {
    the entire surface — multiply darkens in light mode, screen lightens in
    dark — while staying a texture rather than something you read through. */
 #field {
-  position: fixed; inset: 0; z-index: 5; pointer-events: none;
-  mix-blend-mode: multiply; opacity: 0.55;
-}
-@media (prefers-color-scheme: dark) {
-  #field { mix-blend-mode: screen; opacity: 0.5; }
+  position: fixed;
+  inset: 0;
+  /* REQUIRED. <canvas> is a replaced element: `inset: 0` alone does NOT
+     stretch it, so it fell back to its intrinsic 300x150 and covered ~2% of
+     the viewport in the top-left corner. */
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 5;
+  pointer-events: none;
 }
 .page { position: relative; z-index: 1; }
 /* The assistant orb and the nav must stay above the texture. */
