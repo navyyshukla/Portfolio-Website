@@ -62,8 +62,18 @@ export async function POST(request: Request) {
   // Only the newest user turn is fenced: prior assistant turns are our own
   // output, and re-fencing old user turns would bloat the prompt for no gain.
   const history: ChatMessage[] = result.messages;
+
+  // Which documents get attached is decided from the last few user turns, not
+  // just the newest: "tell me more about that" has no terms of its own, and on
+  // its own would retrieve nothing.
+  const retrievalQuery = history
+    .filter((m) => m.role === "user")
+    .slice(-3)
+    .map((m) => m.content)
+    .join(" ");
+
   const messages: LlmMessage[] = [
-    { role: "system", content: buildSystemPrompt() },
+    { role: "system", content: buildSystemPrompt(retrievalQuery) },
     ...history.slice(0, -1),
     { role: "user", content: fence(history[history.length - 1].content) },
   ];

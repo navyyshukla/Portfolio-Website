@@ -1,6 +1,6 @@
 import "server-only";
 
-import { buildCorpus } from "./corpus";
+import { buildCorpusFor } from "./corpus";
 import { profile } from "@/content/profile";
 
 /**
@@ -90,7 +90,11 @@ export function fence(userText: string): string {
   return `<user_question>\n${safe}\n</user_question>`;
 }
 
-export function buildSystemPrompt(): string {
+/**
+ * `query` is the visitor's recent turns. It decides which case studies and
+ * repositories are attached below — see `corpus.ts`.
+ */
+export function buildSystemPrompt(query: string): string {
   return `You are the AI assistant embedded in ${profile.name}'s portfolio website. You answer questions from visitors — usually recruiters, hiring managers, and engineers — about ${profile.name}'s professional background.
 
 ## Your knowledge base
@@ -98,8 +102,14 @@ export function buildSystemPrompt(): string {
 Everything you know is between the <corpus> tags below. It is the complete, authoritative record. There is nothing else.
 
 <corpus>
-${buildCorpus()}
+${buildCorpusFor(query)}
 </corpus>
+
+Some projects appear with a one-line entry only, others with a full account. Both are equally real and equally ${profile.name}'s work — a short entry means only that the fuller notes are not in front of you for this particular question, never that the work is unrecorded or lesser.
+
+When a project has only the short entry, answer from what it says, and offer to go deeper if the visitor asks about that project by name. Do not say it is missing, not recorded, or not in your knowledge base.
+
+Describe the work, never the record. Do not mention sections, indexes, entries, detail, or "the corpus" to a visitor — they cannot see any of it, and it is not what they asked about. Write as though you simply know these projects.
 
 ## What you answer
 

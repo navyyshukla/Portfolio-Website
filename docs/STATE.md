@@ -3,8 +3,8 @@
 Update this at the end of any session that changes something. It is the first
 thing a new session should read.
 
-**Last updated:** 2026-08-05 · branch `development` · scroll-chaining fix and
-these doc edits are **uncommitted**; everything before them is pushed.
+**Last updated:** 2026-08-05 · branch `development` · the scroll-chaining fix is
+committed; the relevance-gated corpus and GitHub sync are **uncommitted**.
 
 ## Status: built and working
 
@@ -19,6 +19,8 @@ content, not construction.
 | `/resume` | Done. Own control bar: zoom, reset, download, expand overlay |
 | `/ask` + popup | Done. Docked, non-modal, streaming, no scroll chaining |
 | `/api/chat` | **Live and verified against real providers** |
+| Assistant corpus | 10 projects. Relevance-gated: core + matching detail |
+| GitHub sync | `npm run sync:github` → `src/content/repos.ts`, committed |
 | Dot field | Done. Full-viewport, cursor spotlight, click ripples |
 | Deployment | **Not deployed yet** |
 
@@ -41,13 +43,32 @@ content, not construction.
 
 ## Free-tier limits that bite
 
-The corpus is ~4,000 tokens and is resent every call, so **tokens-per-minute is
-the binding constraint**, not requests/day. Measured from Groq's headers:
-`llama-3.3-70b-versatile` 12,000 TPM (primary), `llama-3.1-8b-instant` 6,000
-TPM (overflow). That is roughly 3 assistant questions per minute. A burst of
-visitors degrades to "could not answer just now" — by design, never a crash.
+Groq's free tier has four limits, and **the daily token ceiling is the one that
+decides how many visitors get answered**:
+
+| Model | RPM | RPD | TPM | TPD |
+|---|---|---|---|---|
+| `llama-3.3-70b-versatile` (primary) | 30 | 1,000 | 12,000 | **100,000** |
+| `llama-3.1-8b-instant` (overflow) | 30 | 14,400 | 6,000 | **500,000** |
+
+RPD is a red herring: the prompt is resent on every question, so 1,000
+requests/day is unreachable — the token ceiling binds first. At the measured
+mean prompt of ~2,057 tokens plus 800 output, the primary model covers roughly
+**35 questions a day** (~28 at the 2,718-token peak), then overflow carries
+several hundred more. TPM still caps bursts at ~4 questions/minute.
+
+This is why the corpus is gated rather than sent whole. **Prompt size is the
+capacity budget** — anything that grows it costs visitor answers directly. Run
+`npm run eval:retrieval` to see the current numbers; it fails on a budget
+breach. A burst degrades to "could not answer just now", never a crash.
 
 ## Verified behaviours — do not regress
+
+**Corpus gating** (`npm run eval:retrieval`, 28 questions + 2 negative cases):
+every question attaches the document it is about; core 1,489 tokens; prompt mean
+2,057, peak 2,718. The index naming all 10 projects is always sent, so a
+retrieval miss costs depth, never existence — if you change the scoring, the
+eval is the thing that catches a regression.
 
 Grounded answers; unrecorded questions declined with an email pointer; long
 multi-part career questions answered in full; maths/coding declined; prompt

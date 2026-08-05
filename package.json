@@ -11,7 +11,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "sync:github": "node scripts/sync-github.mjs",
+    "eval:retrieval": "node scripts/eval-retrieval.mjs"
   },
   "browserslist": [
     "chrome >= 111",
