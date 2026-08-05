@@ -25,9 +25,28 @@ export function ChatPopup({ onClose }: { onClose: () => void }) {
   const [wide, setWide] = useState(false);
   const transcript = useRef<HTMLDivElement | null>(null);
   const composer = useRef<HTMLTextAreaElement | null>(null);
+  const panel = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     composer.current?.focus();
+  }, []);
+
+  // Scroll chaining. `data-lenis-prevent` on the panel only makes Lenis let go
+  // of the wheel — the browser's native scroll then takes over, and the header
+  // and composer have nothing scrollable to consume it, so the page slides away
+  // underneath. The transcript handles itself (it scrolls, and its
+  // `overscroll-behavior: contain` stops it chaining at the ends); everywhere
+  // else in the panel the wheel is simply swallowed.
+  useEffect(() => {
+    const node = panel.current;
+    if (!node) return;
+    const onWheel = (e: WheelEvent) => {
+      const body = transcript.current;
+      if (body && e.target instanceof Node && body.contains(e.target)) return;
+      e.preventDefault();
+    };
+    node.addEventListener("wheel", onWheel, { passive: false });
+    return () => node.removeEventListener("wheel", onWheel);
   }, []);
 
   useEffect(() => {
@@ -52,9 +71,15 @@ export function ChatPopup({ onClose }: { onClose: () => void }) {
 
   return (
     <section
+      ref={panel}
       className={`chat-pop${wide ? " is-wide" : ""}`}
       role="dialog"
       aria-label="Assistant"
+      // Lenis preventDefaults `wheel` on window, so nothing else gets a say
+      // until it opts out. It matches this against the event's composed path,
+      // so it has to sit on the whole panel, not just the transcript. What
+      // happens after the hand-off is the wheel handler above.
+      data-lenis-prevent
     >
       <header className="chat-pop-head">
         <span className="chat-pop-title">

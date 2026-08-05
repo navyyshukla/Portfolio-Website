@@ -3,7 +3,8 @@
 Update this at the end of any session that changes something. It is the first
 thing a new session should read.
 
-**Last updated:** 2026-07-31 · branch `development` · all work pushed.
+**Last updated:** 2026-08-05 · branch `development` · scroll-chaining fix and
+these doc edits are **uncommitted**; everything before them is pushed.
 
 ## Status: built and working
 
@@ -16,7 +17,7 @@ content, not construction.
 | `/work/[slug]` | Done. 3 case studies written from the repo source |
 | `/beyond-code` | Done. Interests + 3D story path |
 | `/resume` | Done. Own control bar: zoom, reset, download, expand overlay |
-| `/ask` + popup | Done. Docked, non-modal, streaming |
+| `/ask` + popup | Done. Docked, non-modal, streaming, no scroll chaining |
 | `/api/chat` | **Live and verified against real providers** |
 | Dot field | Done. Full-viewport, cursor spotlight, click ripples |
 | Deployment | **Not deployed yet** |
@@ -28,8 +29,10 @@ content, not construction.
 2. **`siteUrl` in `src/content/profile.ts` is a guess**
    (`naivedyashukla.vercel.app`). Canonical tags and the sitemap point at it —
    set the real URL before launch.
-3. **Env vars are local only.** Before deploying, add all six from
-   `.env.example` to Vercel for Production *and* Preview.
+3. **Env vars are local only.** Before deploying, add all seven from
+   `.env.example` to Vercel for Production *and* Preview. Skipping the two
+   Upstash ones silently drops `/api/chat` to the per-instance in-memory
+   limiter.
 4. **Résumé vs site mismatch** the user should resolve: résumé says the Ethara
    AI internship ended Dec 2025, the content says Jan 2026. Site follows the
    user's form answer.
@@ -50,3 +53,15 @@ Grounded answers; unrecorded questions declined with an email pointer; long
 multi-part career questions answered in full; maths/coding declined; prompt
 injection and false-owner claims refused without leaking; 429 + `Retry-After`;
 413 on oversize and >12 turns; 400 on bad role or malformed body.
+
+**Chat popup scroll** (measured in Brave, `scrollY` 900, `deltaY` 500): the page
+holds at 900 with the pointer anywhere on the panel — header, transcript or
+composer — while the transcript still scrolls itself and the page still scrolls
+normally outside the panel, because the popup is deliberately non-modal.
+
+The trap, if you touch this again: `data-lenis-prevent` does **not** stop
+chaining. It only makes Lenis release the wheel event, and the browser's native
+scroll then moves the page. The transcript escapes that because it is scrollable
+and carries `overscroll-behavior: contain`; everywhere else the wheel handler in
+`ChatPopup.tsx` swallows the event. CSS alone cannot fix this — Lenis
+preventDefaults on `window` first.
