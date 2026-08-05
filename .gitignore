@@ -39,8 +39,13 @@ yarn-error.log*
 
 # ---- AI assistant working files ----
 # Kept local: this repo is public and doubles as a portfolio artifact, so the
-# planning/strategy material stays off it. Remove these two lines if you'd
-# rather share them — CLAUDE.md is normally committed.
+# planning/strategy material stays off it. Remove these lines if you'd rather
+# share them — CLAUDE.md is normally committed.
+#
+# `.claude/` is where all working state lives, including the project docs that
+# used to sit at `docs/`: `.claude/docs/STATE.md` (current status) and
+# `.claude/docs/DECISIONS.md` (why the rules are what they are). Notes, plans
+# and anything else *about* the work belong there too — not at the repo root.
 CLAUDE.md
 CLAUDE.local.md
 .claude/

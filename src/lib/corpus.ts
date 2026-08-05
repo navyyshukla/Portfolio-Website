@@ -24,7 +24,8 @@ import { selectDocuments, type Retrievable } from "./retrieval";
  *
  * The reason is the token ceiling, not corpus size: the primary free-tier model
  * allows 100,000 tokens a day and the prompt is resent on every question, so
- * prompt size decides how many visitors can be answered. See docs/DECISIONS.md.
+ * prompt size decides how many visitors can be answered. The reasoning is in
+ * .claude/docs/DECISIONS.md, which is local-only — this repo is public.
  *
  * The index is what makes a retrieval miss survivable. Every project is named in
  * core on every request, so the assistant can always say what exists and only
