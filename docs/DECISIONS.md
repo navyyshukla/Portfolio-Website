@@ -45,6 +45,60 @@ What replaces the old safety property:
   holds 28 recruiter questions with the document each must attach, plus negative
   cases against magnet documents. It fails the run on a miss or a budget breach.
 
+## Answer length is a prompt rule; `max_tokens` is only a fuse
+`max_tokens` does not make a model concise — it cuts it off mid-sentence, and a
+long answer chopped in half is worse than a short complete one. So the system
+prompt asks for three to five sentences and `answerBudget()` sets a ceiling
+*above* that target, sized from the question: 250 for a short single-clause
+question, 420 normally, 700 when it genuinely asks for several things.
+
+The sizing is deterministic — question length, number of `?`, conjunctions
+joining clauses, phrases like "compare" or "walk me through". No classifier: a
+classifier here would be a second model call to save tokens, and it can be wrong
+about a question it has no business judging.
+
+It only ever *grants* room. A long multi-part question gets the largest budget,
+never a shorter answer — otherwise it would contradict the rule that length and
+complexity are never grounds for refusal.
+
+## Daily token spend degrades in two stages
+The 70B allows 100K tokens/day. Rather than serve everyone fully until the
+quota dies, `src/lib/budget.ts` counts spend and tightens: past 65% answers
+shrink one step, past 85% questions route to the 8B, which has its own 500K/day.
+Silent by design — a visitor is never shown the site's accounting.
+
+Spend is *estimated* (chars ÷ 4), not read from provider usage: the two
+providers report differently and one may not report at all on a streamed
+response. An estimate that always works beats an exact figure that sometimes
+vanishes. Counting happens as the stream passes through, and the Redis write is
+fire-and-forget so it cannot delay an answer.
+
+## History is trimmed, because it costs more than output at depth
+Every prior turn is resent as input, so a 12-turn conversation ran ~6,800 input
+tokens for one question — far more than the answer itself. The last two
+exchanges stay verbatim; older answers keep their first 400 characters, oldest
+dropped first. Capping output alone would have left the larger leak open.
+
+## Theme: `data-theme` overrides, OS decides by default
+The palettes already existed but were reachable only through
+`prefers-color-scheme`. An explicit choice is stored in `localStorage` and
+stamped on `<html>` as `data-theme`, which outranks the media query via
+`:root:not([data-theme])`. Nothing stored means the OS still decides, live.
+
+No `next-themes` — it is four lines of inline script plus a `useSyncExternalStore`
+leaf, against a 200 KB budget. The theme lives in the DOM and the OS, not in
+React state, so it is read as an external store rather than mirrored.
+
+The inline script in `layout.tsx` is the one blocking script on the page and
+must stay: without it, a visitor who chose light gets a dark flash on every
+navigation, because the server cannot know the stored choice.
+
+Two pre-existing bugs surfaced while doing this and were fixed: the Tailwind
+`@theme` block held static dark hexes, so utilities like `bg-surface` stayed
+dark in light mode; and `--color-border` was never defined at all, so the eight
+`border-border` usages fell back to `currentColor`. Both now point at the
+existing variables — no new colour values.
+
 ## GitHub repositories are synced, not fetched
 `npm run sync:github` writes `src/content/repos.ts`; the output is committed.
 Deliberately not a build step and not a runtime call: builds stay deterministic

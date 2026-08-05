@@ -56,7 +56,25 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${display.variable} ${inter.variable} ${jetbrains.variable}`}
+      // The script below stamps data-theme before React sees the document.
+      suppressHydrationWarning
     >
+      <head>
+        {/*
+          Runs before first paint. Without it a visitor who chose light gets a
+          dark flash on every navigation, because the stored choice is only
+          readable on the client and the server cannot know it.
+
+          Deliberately tiny and dependency-free — `next-themes` would cost
+          bundle for what is four lines. Absence of the key means "follow the
+          OS", which the CSS already handles, so nothing is stamped.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         <a
           href="#main"

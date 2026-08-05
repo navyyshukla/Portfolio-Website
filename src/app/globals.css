@@ -14,18 +14,27 @@
    `border-border`. The v3 shorthand `bg-[--color-surface]` emits
    `background:--color-surface`, which is invalid CSS and renders unstyled.
 =============================================================== */
-@theme {
-  --color-ground: #070c17;
-  --color-ground2: #0b1220;
-  --color-surface: #121c31;
-  --color-raised: #17223d;
-  --color-hair: #26375f;
-  --color-hairsoft: #1b2946;
-  --color-fg: #f4f7fc;
-  --color-fgdim: #d6dfee;
-  --color-muted: #9dafcc;
-  --color-accent: #ffb072;
-  --color-accent2: #ff7d47;
+/* `inline` so utilities resolve these at the use site rather than baking in the
+   value here. Without it these were static dark hexes, and every Tailwind
+   utility — `bg-surface` in the ⌘K palette, `focus:bg-surface` on the skip link
+   — stayed dark in light mode while the rest of the site changed. One set of
+   values now drives both the utilities and the plain CSS below. */
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ground2: var(--ground-2);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-hair: var(--hair);
+  --color-hairsoft: var(--hair-soft);
+  /* `border-border` is used in eight places but this token never existed, so
+     every one of them silently fell back to currentColor — a full-contrast
+     border where a hairline was meant. Same value as --hair, no new colour. */
+  --color-border: var(--hair);
+  --color-fg: var(--fg);
+  --color-fgdim: var(--fg-dim);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent-2);
 }
 
 /* `inline` so the utilities reference the next/font variables at use site. */
@@ -68,11 +77,25 @@
   color-scheme: dark;
 }
 
+/* Light palette. Values unchanged — only *when* they apply changed.
+   Ground carries a touch of the accent's warmth so it reads as chosen rather
+   than as default cold grey. Accent darkened to hold AA contrast as text on
+   the ground (was #c2600f, ~3.4:1 — now ~4.8:1). */
+:root[data-theme="light"] {
+  --ground: #eeeae4; --ground-2: #e6e1d9; --surface: #ffffff; --raised: #faf8f5;
+  --hair: #d5cec4; --hair-soft: #e4ded6;
+  --fg: #14100c; --fg-dim: #3d3730; --muted: #5f584f;
+  --accent: #a34b06; --accent-2: #8a3a03;
+  --accent-soft: rgba(163, 75, 6, 0.10);
+  --accent-line: rgba(163, 75, 6, 0.34);
+  --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #7d7268;
+  color-scheme: light;
+}
+
+/* The OS preference still decides for anyone who has never touched the toggle.
+   `:not([data-theme])` is what lets an explicit choice win over the OS. */
 @media (prefers-color-scheme: light) {
-  :root {
-    /* Ground carries a touch of the accent's warmth so it reads as chosen
-       rather than as default cold grey. Accent darkened to hold AA contrast
-       as text on the ground (was #c2600f, ~3.4:1 — now ~4.8:1). */
+  :root:not([data-theme]) {
     --ground: #eeeae4; --ground-2: #e6e1d9; --surface: #ffffff; --raised: #faf8f5;
     --hair: #d5cec4; --hair-soft: #e4ded6;
     --fg: #14100c; --fg-dim: #3d3730; --muted: #5f584f;
@@ -82,6 +105,19 @@
     --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #7d7268;
     color-scheme: light;
   }
+}
+
+/* `:root` above is already dark, so this only needs to win back from the media
+   query when the OS says light but the visitor chose dark. */
+:root[data-theme="dark"] {
+  --ground: #070c17; --ground-2: #0b1220; --surface: #121c31; --raised: #17223d;
+  --hair: #26375f; --hair-soft: #1b2946;
+  --fg: #f4f7fc; --fg-dim: #d6dfee; --muted: #9dafcc;
+  --accent: #ffb072; --accent-2: #ff7d47;
+  --accent-soft: rgba(255, 176, 114, 0.15);
+  --accent-line: rgba(255, 176, 114, 0.38);
+  --on-accent: #1c1206; --glow: rgba(255, 141, 66, 0.5); --dot: #9dafcc;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -159,6 +195,22 @@ h1, h2, h3 {
 .nav-links a:hover { color: var(--fg); }
 .nav-links a.is-resume { color: var(--fg); }
 .nav-links a.is-resume::after { content: " \2197"; color: var(--accent); }
+
+/* Borrows the `.resume-bar button` treatment so the site has one icon-button
+   language, sized between that (42px) and `.iconbtn` (30px). */
+.nav-toggle { display: flex; align-items: center; margin-left: 0.15rem; }
+.theme-toggle {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--hair); background: transparent; color: var(--muted);
+  transition: border-color .18s, color .18s, background .18s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-toggle svg {
+  width: 18px; height: 18px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
 @media (max-width: 780px) { .nav-hide { display: none; } }
 
 /* ---------------- buttons ---------------- */

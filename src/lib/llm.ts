@@ -56,6 +56,20 @@ function providers(): Provider[] {
   ].filter((p) => !!p.key);
 }
 
+/**
+ * Once the 70B's daily token allowance is nearly spent, start at the 8B, which
+ * has its own separate and much larger allowance (500K/day vs 100K). Dropping
+ * the 70B from the chain entirely — rather than letting it 429 first — is the
+ * point: a doomed request still costs the visitor a round trip.
+ */
+function chainFor(stage: "normal" | "tighten" | "fallback"): Provider[] {
+  const chain = providers();
+  if (stage !== "fallback") return chain;
+
+  const demoted = chain.filter((p) => p.name !== "groq:70b");
+  return demoted.length ? demoted : chain;
+}
+
 export function hasProvider(): boolean {
   return providers().length > 0;
 }
@@ -73,8 +87,10 @@ export interface LlmMessage {
 export async function streamCompletion(
   messages: LlmMessage[],
   signal: AbortSignal,
+  options: { maxTokens?: number; stage?: "normal" | "tighten" | "fallback" } = {},
 ): Promise<ReadableStream<Uint8Array>> {
-  const chain = providers();
+  const { maxTokens = 420, stage = "normal" } = options;
+  const chain = chainFor(stage);
   let lastError = "no provider configured";
 
   for (const provider of chain) {
@@ -91,7 +107,9 @@ export async function streamCompletion(
           messages,
           stream: true,
           temperature: 0.3,
-          max_tokens: 800,
+          // A ceiling, not a target — the system prompt asks for 3-5 sentences
+          // and this only stops a runaway. See `answerBudget` in guardrails.ts.
+          max_tokens: maxTokens,
         }),
       });
 

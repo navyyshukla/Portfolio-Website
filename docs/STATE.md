@@ -3,8 +3,9 @@
 Update this at the end of any session that changes something. It is the first
 thing a new session should read.
 
-**Last updated:** 2026-08-05 · branch `development` · the scroll-chaining fix is
-committed; the relevance-gated corpus and GitHub sync are **uncommitted**.
+**Last updated:** 2026-08-05 · branch `development` · scroll fix and the
+relevance-gated corpus are committed; answer budgets and the theme toggle are
+**uncommitted**.
 
 ## Status: built and working
 
@@ -21,6 +22,8 @@ content, not construction.
 | `/api/chat` | **Live and verified against real providers** |
 | Assistant corpus | 10 projects. Relevance-gated: core + matching detail |
 | GitHub sync | `npm run sync:github` → `src/content/repos.ts`, committed |
+| Answer length | 3–5 sentences; cap sized per question, shrinks with spend |
+| Theme | Follows the OS; nav toggle overrides and is remembered |
 | Dot field | Done. Full-viewport, cursor spotlight, click ripples |
 | Deployment | **Not deployed yet** |
 
@@ -63,6 +66,25 @@ capacity budget** — anything that grows it costs visitor answers directly. Run
 breach. A burst degrades to "could not answer just now", never a crash.
 
 ## Verified behaviours — do not regress
+
+**Multi-turn conversation.** A follow-up after a long answer must work. It used
+to 413 with "Messages are limited to 1000 characters": the cap was applied to
+assistant turns, which the client resends as history, so any answer over ~1,000
+characters killed the next turn. The cap is visitor input only now. Measured
+after: a 1,680-character assistant turn returns 200; a 9,000-character one is
+still rejected; a 1,200-character *question* is still rejected.
+
+**Answer length** (measured live): "Has he used MongoDB?" → 135 output tokens;
+"Compare his ML projects and say which shows the most depth" → 221. Both ended
+on a complete sentence. The old ceiling was 800 for everything.
+
+**Budget stages** (seeded in Redis): 60% → normal, 70% → tighten (700 cap
+becomes 420), 90% → fallback, and a live request at 90% still answered.
+
+**Theme** (Brave, both modes): OS default works either way with nothing stored;
+the toggle overrides and survives reload; with a stored light choice on a dark
+OS the first painted `--ground` is `#eeeae4`, so there is no flash; the ⌘K
+palette follows the theme (white / `#121c31`) with a hairline border.
 
 **Corpus gating** (`npm run eval:retrieval`, 28 questions + 2 negative cases):
 every question attaches the document it is about; core 1,489 tokens; prompt mean

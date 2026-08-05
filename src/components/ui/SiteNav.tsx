@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { profile } from "@/content/profile";
+import { ThemeToggle } from "./ThemeToggle";
 
 /**
  * Server component — no client JS. Wordmark in the display serif, links in the
@@ -30,6 +31,11 @@ export function SiteNav() {
               <Link href="/resume" className="is-resume">
                 Résumé
               </Link>
+            </li>
+            {/* Outside the link list semantically it is still a nav control,
+                and it stays visible at every width — unlike `.nav-hide`. */}
+            <li className="nav-toggle">
+              <ThemeToggle />
             </li>
           </ul>
         </nav>
