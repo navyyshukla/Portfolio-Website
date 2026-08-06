@@ -37,8 +37,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # Matches `engines.node` in package.json.
-          node-version: 20
+          # Matches `engines.node` in package.json. 22 is the floor, not a
+          # preference: `eval:retrieval` spawns node with
+          # `--experimental-strip-types` to import the `.ts` corpus directly,
+          # and that flag does not exist before 22.6.
+          node-version: 22
           cache: npm
 
       - name: Install

@@ -13,7 +13,7 @@ export function Hero() {
   return (
     <section className="hero wrap">
       <div className="hero-grid">
-        <div>
+        <div className="hero-copy">
           <p className="eyebrow eyebrow--accent">{profile.openTo}</p>
           <h1>{profile.name}</h1>
           <p className="positioning">{profile.positioning}</p>

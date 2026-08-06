@@ -24,7 +24,9 @@ export function SiteNav() {
             <li className="nav-hide">
               <Link href="/beyond-code">Beyond</Link>
             </li>
-            <li>
+            {/* Dropped on the narrowest phones — see `.nav-hide-sm`. Contact
+                still has the footer, the hero CTA and the #contact section. */}
+            <li className="nav-hide-sm">
               <Link href="/#contact">Contact</Link>
             </li>
             <li>
