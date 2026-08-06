@@ -257,7 +257,22 @@ h1, h2, h3 {
   display: grid; gap: clamp(2rem, 5vw, 4.5rem);
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.75fr); align-items: center;
 }
-.hero h1 { margin: 0.75rem 0 0; font-size: var(--t-hero); line-height: 0.94; }
+/*
+ * The name is the wordmark of the page and must not break across lines. A
+ * viewport-based clamp cannot guarantee that: the copy column is a grid track
+ * beside the portrait, so at 1024–1440px it is *narrower* than the viewport
+ * suggests and 6rem overflowed it by ~30px. Sizing from the container instead
+ * makes the guarantee hold at every width.
+ *
+ * 13.06cqi is the exact fit — Fraunces renders this name at 7.657× its font
+ * size — so 12.6cqi leaves ~3.5% of slack for font fallback. The clamp still
+ * caps it, so wide screens keep the intended 6rem.
+ */
+.hero-copy { container-type: inline-size; }
+.hero h1 {
+  margin: 0.75rem 0 0; line-height: 0.94;
+  font-size: min(var(--t-hero), 12.6cqi); white-space: nowrap;
+}
 .positioning { margin: 1.5rem 0 0; font-size: var(--t-lead); line-height: 1.55; max-width: var(--measure); color: var(--fg-dim); }
 .hero-loc { margin: 0.85rem 0 0; font-family: var(--font-jetbrains), monospace; font-size: 0.9rem; color: var(--muted); }
 .cta-row { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2.1rem; }
