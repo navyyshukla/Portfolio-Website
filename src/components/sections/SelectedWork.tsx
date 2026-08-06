@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { featuredProjects } from "@/content/projects";
+import { BrowserFrame } from "@/components/ui/BrowserFrame";
+import { ProjectPreviewVideo } from "@/components/ui/ProjectPreviewVideo";
 
 /**
  * Three equal rows, same size and shape — no ranking implied by tile size.
@@ -15,7 +17,13 @@ export function SelectedWork() {
 
       <div className="work-list">
         {featuredProjects.map((project) => (
-          <Link key={project.slug} href={`/work/${project.slug}`} className="work-row reveal">
+          <Link
+            key={project.slug}
+            href={`/work/${project.slug}`}
+            // Nothing captured yet? The row goes full width rather than
+            // reserving half of itself for an empty column.
+            className={`work-row reveal${project.media ? "" : " work-row--nomedia"}`}
+          >
             <div className="body">
               <p className="eyebrow eyebrow--accent">
                 {project.category} · {project.timeframe}
@@ -29,9 +37,20 @@ export function SelectedWork() {
                 {project.repoUrl ? <span>Code</span> : null}
               </p>
             </div>
-            <div className="preview">
-              <span className="preview-label">Screenshot / demo</span>
-            </div>
+            {project.media ? (
+              <div className="preview">
+                {/* The preview column is the narrower half of a 1.15fr 1fr
+                    grid inside a 1240px page, so it never exceeds ~520px. */}
+                <BrowserFrame
+                  media={project.media}
+                  sizes="(max-width: 800px) 92vw, 520px"
+                >
+                  {project.media.video ? (
+                    <ProjectPreviewVideo src={project.media.video} />
+                  ) : null}
+                </BrowserFrame>
+              </div>
+            ) : null}
           </Link>
         ))}
       </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { projects, getProject } from "@/content/projects";
+import { BrowserFrame } from "@/components/ui/BrowserFrame";
 import { buildMetadata } from "@/lib/seo";
 
 /** Enumerates the full URL space at build time. */
@@ -74,6 +75,17 @@ export default async function ProjectPage({
               Source ↗
             </a>
           )}
+        </div>
+      )}
+
+      {project.media && (
+        <div className="bframe--hero">
+          {/* Full content width here — the shot is the subject of the page,
+              not a teaser, so it gets no hover treatment and plenty of room. */}
+          <BrowserFrame
+            media={project.media}
+            sizes="(max-width: 1240px) 92vw, 1140px"
+          />
         </div>
       )}
 

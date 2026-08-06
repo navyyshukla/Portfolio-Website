@@ -12,6 +12,38 @@ export interface CaseStudySection {
   body: string[];
 }
 
+/**
+ * The preview shown in the browser-chrome frame on "/" and at the top of the
+ * case study. Every path points into `public/shots/`, written by
+ * `npm run capture:shots` — do not hand-author these files.
+ *
+ * Optional on purpose: a project with nothing captured yet renders the card
+ * with no frame at all rather than a broken image.
+ */
+export interface ProjectMedia {
+  /** Viewport-sized capture. The still that ships on first load. */
+  poster: string;
+  /** Intrinsic pixels of `poster`, so the frame reserves its box and CLS is 0. */
+  width: number;
+  height: number;
+  /** What the app does, for screen readers. Not "a screenshot of X". */
+  alt: string;
+  /** Hostname drawn in the frame's address bar. */
+  host: string;
+  /**
+   * Full-page capture, taller than the frame. When present the frame pans it
+   * on hover with a CSS transform — motion for zero extra bytes and zero JS.
+   */
+  tall?: string;
+  /** Intrinsic height of `tall`; the width matches `width`. */
+  tallHeight?: number;
+  /**
+   * Muted WebM loop. Never fetched until the visitor hovers or focuses the
+   * card, so it costs nothing on first load. Absent is fine — the pan covers it.
+   */
+  video?: string;
+}
+
 export interface Project {
   slug: string;
   title: string;
@@ -22,6 +54,7 @@ export interface Project {
   timeframe: string;
   repoUrl?: string;
   liveUrl?: string;
+  media?: ProjectMedia;
   caseStudy: CaseStudySection[];
 }
 
@@ -44,6 +77,14 @@ export const projects: Project[] = [
     ],
     liveUrl: "https://other-side-india.vercel.app/",
     repoUrl: "https://github.com/navyyshukla/other-side-india",
+    media: {
+      poster: "/shots/other-side-of-india/poster.avif",
+      width: 1440,
+      height: 900,
+      video: "/shots/other-side-of-india/demo.webm",
+      host: "other-side-india.vercel.app",
+      alt: "The site's landing screen, split down the middle: a red Dark Side half labelled 'the silence we break' against a green Bright Side half labelled 'the future we build', with a live count of media reports from the last 24 hours above them.",
+    },
     caseStudy: [
       {
         heading: "The problem",
@@ -101,6 +142,14 @@ export const projects: Project[] = [
     ],
     liveUrl: "https://ai-music-classifier-app-dep.streamlit.app",
     repoUrl: "https://github.com/navyyshukla/AI-Music-Classifier-App",
+    media: {
+      poster: "/shots/music-genre-classifier/poster.avif",
+      width: 1440,
+      height: 900,
+      video: "/shots/music-genre-classifier/demo.webm",
+      host: "ai-music-classifier-app-dep.streamlit.app",
+      alt: "The classifier's upload screen: a drop zone for a WAV, MP3, FLAC or OGG file, a sidebar of analysis settings reporting the model loaded successfully across ten genres, and a panel naming the model a TensorFlow CNN over mel spectrogram images.",
+    },
     caseStudy: [
       {
         heading: "The problem",
@@ -157,6 +206,14 @@ export const projects: Project[] = [
     ],
     liveUrl: "https://huggingface.co/spaces/navyyshukla/stock-prediction-app",
     repoUrl: "https://github.com/navyyshukla/stock_prediction_dash_app",
+    media: {
+      poster: "/shots/stock-prediction-dashboard/poster.avif",
+      width: 1440,
+      height: 900,
+      video: "/shots/stock-prediction-dashboard/demo.webm",
+      host: "huggingface.co",
+      alt: "The dashboard showing a year of GOOGL: a control panel for ticker, date range and analysis type on the left, and a line chart of opening against closing price through 2023 filling the panel beside it.",
+    },
     caseStudy: [
       {
         heading: "The problem",
