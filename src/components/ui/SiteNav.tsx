@@ -1,43 +1,45 @@
 import Link from "next/link";
 import { profile } from "@/content/profile";
+import { ThemeToggle } from "./ThemeToggle";
 
 /**
- * Server component — no client JS. Deliberately plain: the recruiter path must
- * not require any interaction to reveal navigation.
+ * Server component — no client JS. Wordmark in the display serif, links in the
+ * sans, so the header does not share the footer's monospace voice.
  */
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">
-      <nav
-        aria-label="Primary"
-        className="mx-auto flex h-14 max-w-3xl items-center justify-between px-5"
-      >
-        <Link href="/" className="text-sm font-semibold tracking-tight">
+    <header className="nav">
+      <div className="wrap">
+        <Link href="/" className="nav-name">
           {profile.name}
         </Link>
-        <ul className="flex items-center gap-5 text-sm text-muted">
-          <li>
-            <Link href="/#work" className="hover:text-fg">
-              Work
-            </Link>
-          </li>
-          <li>
-            <Link href="/ask" className="hover:text-fg">
-              Ask
-            </Link>
-          </li>
-          <li>
-            <Link href="/beyond-code" className="hover:text-fg">
-              Beyond code
-            </Link>
-          </li>
-          <li>
-            <a href={profile.cvHref} className="hover:text-fg">
-              CV
-            </a>
-          </li>
-        </ul>
-      </nav>
+        <nav aria-label="Primary">
+          <ul className="nav-links">
+            <li className="nav-hide">
+              <Link href="/#experience">Experience</Link>
+            </li>
+            <li>
+              <Link href="/#work">Work</Link>
+            </li>
+            <li className="nav-hide">
+              <Link href="/beyond-code">Beyond</Link>
+            </li>
+            <li>
+              <Link href="/#contact">Contact</Link>
+            </li>
+            <li>
+              <Link href="/resume" className="is-resume">
+                Résumé
+              </Link>
+            </li>
+            {/* Outside the link list semantically it is still a nav control,
+                and it stays visible at every width — unlike `.nav-hide`. */}
+            <li className="nav-toggle">
+              <ThemeToggle />
+            </li>
+          </ul>
+        </nav>
+      </div>
     </header>
   );
 }

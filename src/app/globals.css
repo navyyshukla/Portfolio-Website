@@ -1,56 +1,739 @@
 @import "tailwindcss";
 
-/* Tailwind v4 generates utilities from these tokens: `bg-surface`,
-   `text-muted`, `border-border`, `font-mono`, and so on. Do NOT write the v3
-   shorthand `bg-[--color-surface]` — in v4 that emits `background:--color-x`,
-   which is invalid CSS and silently renders unstyled. */
-@theme {
-  --color-bg: #0b0c0e;
-  --color-surface: #131519;
-  --color-border: #24272e;
-  --color-fg: #eceef1;
-  --color-muted: #9aa1ac;
-  --color-accent: #7dd3a0;
+/* ===============================================================
+   TOKENS
+   Ink-navy ground, warm sand accent — one accent only. Neutrals
+   carry a blue bias so they read as chosen against the ground.
+
+   Three type voices:
+     --font-display  Instrument Serif -> headings, the name
+     --font-sans     Inter            -> body copy
+     --font-mono     JetBrains Mono   -> nav, footer, labels, meta
+
+   NOTE for Tailwind v4: write utilities as `bg-surface`, `text-muted`,
+   `border-border`. The v3 shorthand `bg-[--color-surface]` emits
+   `background:--color-surface`, which is invalid CSS and renders unstyled.
+=============================================================== */
+/* `inline` so utilities resolve these at the use site rather than baking in the
+   value here. Without it these were static dark hexes, and every Tailwind
+   utility — `bg-surface` in the ⌘K palette, `focus:bg-surface` on the skip link
+   — stayed dark in light mode while the rest of the site changed. One set of
+   values now drives both the utilities and the plain CSS below. */
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ground2: var(--ground-2);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-hair: var(--hair);
+  --color-hairsoft: var(--hair-soft);
+  /* `border-border` is used in eight places but this token never existed, so
+     every one of them silently fell back to currentColor — a full-contrast
+     border where a hairline was meant. Same value as --hair, no new colour. */
+  --color-border: var(--hair);
+  --color-fg: var(--fg);
+  --color-fgdim: var(--fg-dim);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent2: var(--accent-2);
 }
 
-/* `inline` so the generated utilities reference the next/font variables at use
-   site rather than freezing their value here. */
+/* `inline` so the utilities reference the next/font variables at use site. */
 @theme inline {
+  --font-display: var(--font-display-face), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 :root {
+  --ground: #070c17;
+  --ground-2: #0b1220;
+  --surface: #121c31;
+  --raised: #17223d;
+  --hair: #26375f;
+  --hair-soft: #1b2946;
+  --fg: #f4f7fc;
+  --fg-dim: #d6dfee;
+  --muted: #9dafcc;
+  --accent: #ffb072;
+  --accent-2: #ff7d47;
+  --accent-soft: rgba(255, 176, 114, 0.15);
+  --accent-line: rgba(255, 176, 114, 0.38);
+  --on-accent: #1c1206;
+  --glow: rgba(255, 141, 66, 0.5);
+  --dot: #9dafcc;
+
+  --t-hero: clamp(3rem, 8.5vw, 6rem);
+  --t-h2: clamp(1.85rem, 4vw, 2.75rem);
+  --t-h3: clamp(1.45rem, 2.8vw, 1.95rem);
+  --t-body: clamp(1.03rem, 1.2vw, 1.1rem);
+  --t-lead: clamp(1.14rem, 1.6vw, 1.38rem);
+
+  --measure: 58ch;
+  --gutter: clamp(1rem, 3.5vw, 2.25rem);
+  --maxw: 1240px;
+  --r: 18px;
+  --gap: clamp(0.7rem, 1.4vw, 1rem);
+
   color-scheme: dark;
 }
 
-html {
-  /* `clip` not `hidden` — `hidden` creates a scroll container that silently
-     breaks `position: sticky` further down the tree. */
-  overflow-x: clip;
+/* Light palette. Values unchanged — only *when* they apply changed.
+   Ground carries a touch of the accent's warmth so it reads as chosen rather
+   than as default cold grey. Accent darkened to hold AA contrast as text on
+   the ground (was #c2600f, ~3.4:1 — now ~4.8:1). */
+:root[data-theme="light"] {
+  --ground: #eeeae4; --ground-2: #e6e1d9; --surface: #ffffff; --raised: #faf8f5;
+  --hair: #d5cec4; --hair-soft: #e4ded6;
+  --fg: #14100c; --fg-dim: #3d3730; --muted: #5f584f;
+  --accent: #a34b06; --accent-2: #8a3a03;
+  --accent-soft: rgba(163, 75, 6, 0.10);
+  --accent-line: rgba(163, 75, 6, 0.34);
+  --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #7d7268;
+  color-scheme: light;
 }
 
-body {
-  background: var(--color-bg);
-  color: var(--color-fg);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Global guardrail: honour the OS reduced-motion setting for every animation,
-   including any a component forgets to gate. WCAG 2.2 SC 2.3.3 / technique C39. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+/* The OS preference still decides for anyone who has never touched the toggle.
+   `:not([data-theme])` is what lets an explicit choice win over the OS. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --ground: #eeeae4; --ground-2: #e6e1d9; --surface: #ffffff; --raised: #faf8f5;
+    --hair: #d5cec4; --hair-soft: #e4ded6;
+    --fg: #14100c; --fg-dim: #3d3730; --muted: #5f584f;
+    --accent: #a34b06; --accent-2: #8a3a03;
+    --accent-soft: rgba(163, 75, 6, 0.10);
+    --accent-line: rgba(163, 75, 6, 0.34);
+    --on-accent: #ffffff; --glow: rgba(163, 75, 6, 0.28); --dot: #7d7268;
+    color-scheme: light;
   }
 }
 
-/* Visible keyboard focus everywhere. */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+/* `:root` above is already dark, so this only needs to win back from the media
+   query when the OS says light but the visitor chose dark. */
+:root[data-theme="dark"] {
+  --ground: #070c17; --ground-2: #0b1220; --surface: #121c31; --raised: #17223d;
+  --hair: #26375f; --hair-soft: #1b2946;
+  --fg: #f4f7fc; --fg-dim: #d6dfee; --muted: #9dafcc;
+  --accent: #ffb072; --accent-2: #ff7d47;
+  --accent-soft: rgba(255, 176, 114, 0.15);
+  --accent-line: rgba(255, 176, 114, 0.38);
+  --on-accent: #1c1206; --glow: rgba(255, 141, 66, 0.5); --dot: #9dafcc;
+  color-scheme: dark;
 }
+
+* { box-sizing: border-box; }
+html { overflow-x: clip; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--fg);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+a { color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--font-display-face), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.wrap { max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+
+.eyebrow {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.82rem; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--muted); margin: 0;
+}
+.eyebrow--accent { color: var(--accent); }
+
+/* ---------------- global dot field ----------------
+   Painted OVER the page, not behind it. Behind, every opaque card hid it and
+   it only survived in the side margins. As a blended overlay it reads across
+   the entire surface — multiply darkens in light mode, screen lightens in
+   dark — while staying a texture rather than something you read through. */
+#field {
+  position: fixed;
+  inset: 0;
+  /* REQUIRED. <canvas> is a replaced element: `inset: 0` alone does NOT
+     stretch it, so it fell back to its intrinsic 300x150 and covered ~2% of
+     the viewport in the top-left corner. */
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 5;
+  pointer-events: none;
+}
+.page { position: relative; z-index: 1; }
+/* The assistant orb and the nav must stay above the texture. */
+.nav { z-index: 40; }
+.ask-fab { z-index: 60; }
+
+/* ---------------- nav ---------------- */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--ground) 80%, transparent);
+  backdrop-filter: blur(14px); border-bottom: 1px solid var(--hair-soft);
+}
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 64px; }
+.nav-name {
+  font-family: var(--font-display-face), ui-serif, Georgia, serif;
+  font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; color: var(--fg); text-decoration: none;
+}
+.nav-links {
+  display: flex; align-items: center; gap: clamp(0.75rem, 2.2vw, 1.75rem);
+  list-style: none; margin: 0; padding: 0;
+  font-size: 0.98rem; font-weight: 500;
+}
+.nav-links a { color: var(--muted); text-decoration: none; transition: color .18s; }
+.nav-links a:hover { color: var(--fg); }
+.nav-links a.is-resume { color: var(--fg); }
+.nav-links a.is-resume::after { content: " \2197"; color: var(--accent); }
+
+/* Borrows the `.resume-bar button` treatment so the site has one icon-button
+   language, sized between that (42px) and `.iconbtn` (30px). */
+.nav-toggle { display: flex; align-items: center; margin-left: 0.15rem; }
+.theme-toggle {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--hair); background: transparent; color: var(--muted);
+  transition: border-color .18s, color .18s, background .18s;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-toggle svg {
+  width: 18px; height: 18px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+@media (max-width: 780px) { .nav-hide { display: none; } }
+
+/* ---------------- buttons ---------------- */
+.btn {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.86rem; letter-spacing: 0.06em;
+  padding: 0.85rem 1.35rem; border-radius: 10px; text-decoration: none;
+  border: 1px solid transparent; cursor: pointer; display: inline-block;
+  transition: transform .18s ease, border-color .18s, box-shadow .18s;
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 700; box-shadow: 0 8px 24px -10px var(--glow); }
+.btn-ghost { border-color: var(--hair); color: var(--fg); background: var(--raised); }
+.btn-ghost:hover { border-color: var(--accent); }
+.btn:hover { transform: translateY(-2px); }
+
+/* ---------------- hero ---------------- */
+.hero { padding-block: clamp(2.5rem, 7vw, 5.5rem) clamp(2.5rem, 6vw, 4.5rem); }
+.hero-grid {
+  display: grid; gap: clamp(2rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.75fr); align-items: center;
+}
+.hero h1 { margin: 0.75rem 0 0; font-size: var(--t-hero); line-height: 0.94; }
+.positioning { margin: 1.5rem 0 0; font-size: var(--t-lead); line-height: 1.55; max-width: var(--measure); color: var(--fg-dim); }
+.hero-loc { margin: 0.85rem 0 0; font-family: var(--font-jetbrains), monospace; font-size: 0.9rem; color: var(--muted); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2.1rem; }
+
+.portrait {
+  width: min(100%, 380px); aspect-ratio: 4 / 5; justify-self: end;
+  border: 1px solid var(--hair); border-radius: var(--r);
+  background: var(--surface); overflow: hidden; position: relative;
+  box-shadow: 0 30px 60px -40px rgba(0, 0, 0, .7);
+}
+.portrait img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 2.25rem; }
+  .portrait { order: -1; justify-self: start; width: min(100%, 300px); }
+}
+
+/* ---------------- sections ---------------- */
+.section { padding-block: clamp(3rem, 7vw, 5.5rem); border-top: 1px solid var(--hair-soft); }
+.section-head { margin-bottom: 2.5rem; }
+.section-head h2 { margin: 0.4rem 0 0; font-size: var(--t-h2); }
+
+/* ---------------- experience timeline ---------------- */
+.roles { list-style: none; margin: 0; padding: 0 0 0 2rem; position: relative; }
+.roles::before {
+  content: ""; position: absolute; left: 5px; top: 1.6rem; bottom: 1.6rem; width: 1px;
+  background: linear-gradient(var(--accent-line), var(--hair) 22%, var(--hair) 78%, transparent);
+}
+.role { position: relative; padding: 0 0 2.75rem; }
+.role:last-child { padding-bottom: 0; }
+.role::before {
+  content: ""; position: absolute; left: -2rem; top: 1.4rem;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--ground); border: 2px solid var(--hair);
+  transition: border-color .22s, transform .22s;
+}
+.role:hover::before { border-color: var(--accent); transform: scale(1.2); }
+.role--now::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft); }
+
+.role-top { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+.role-when { font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.06em; }
+.now-chip {
+  font-family: var(--font-jetbrains), monospace; font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent);
+  border: 1px solid var(--accent-line); background: var(--accent-soft);
+  border-radius: 999px; padding: 0.15rem 0.5rem;
+}
+.role-title { margin: 0.45rem 0 0; font-family: var(--font-display-face), ui-serif, Georgia, serif; font-size: var(--t-h3); letter-spacing: -0.015em; }
+.role-org { color: var(--accent); }
+.role-bullets { margin: 0.6rem 0 0; padding-left: 1.1rem; color: var(--fg-dim); max-width: var(--measure); }
+.role-bullets li { margin-top: 0.35rem; }
+.role-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0 0; padding: 0; list-style: none; }
+.role-tech li {
+  font-family: var(--font-jetbrains), monospace; font-size: 0.78rem; letter-spacing: 0.03em;
+  color: var(--muted); border: 1px solid var(--hair-soft); border-radius: 6px;
+  padding: 0.3rem 0.65rem; background: var(--surface);
+}
+
+/* ---------------- work rows ---------------- */
+.work-list { display: grid; gap: var(--gap); }
+.work-row {
+  display: grid; grid-template-columns: 1.15fr 1fr;
+  border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface);
+  overflow: hidden; text-decoration: none;
+  transition: border-color .22s, transform .22s, box-shadow .22s;
+}
+.work-row--nomedia { grid-template-columns: 1fr; }
+.work-row:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 40px -24px var(--glow); }
+.work-row .body { padding: clamp(1.4rem, 3vw, 2.2rem); display: flex; flex-direction: column; gap: 0.7rem; }
+.work-row h3 { margin: 0; font-size: var(--t-h3); }
+.work-row p { margin: 0; color: var(--fg-dim); max-width: 48ch; }
+.work-row .preview {
+  background: radial-gradient(90% 120% at 78% 12%, var(--accent-soft), transparent 66%), var(--ground-2);
+  border-left: 1px solid var(--hair); display: grid; place-items: center;
+  min-height: 236px; padding: clamp(1rem, 2.2vw, 1.6rem);
+}
+@media (max-width: 800px) {
+  .work-row { grid-template-columns: 1fr; }
+  .work-row .preview { border-left: none; border-top: 1px solid var(--hair); min-height: 0; order: -1; }
+}
+
+/* ---------------- browser frame ----------------
+   A screenshot reads as a picture. The same screenshot with a title bar and an
+   address reads as something that shipped. All of the motion below is CSS
+   driven by the parent's :hover / :focus-within, so the homepage bundle does
+   not grow by a byte and the keyboard gets the same behaviour as the mouse. */
+.bframe {
+  width: 100%; border: 1px solid var(--hair); border-radius: 12px;
+  background: var(--surface); overflow: hidden;
+  box-shadow: 0 14px 34px -22px rgba(0, 0, 0, .55);
+  transition: border-color .3s ease, box-shadow .3s ease, transform .4s cubic-bezier(.2, .8, .3, 1);
+}
+.bframe-bar {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.42rem 0.6rem; border-bottom: 1px solid var(--hair-soft);
+  background: var(--raised);
+}
+.bframe-dots { display: flex; gap: 0.28rem; flex: none; }
+.bframe-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--hair); }
+.bframe-url {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.02em; color: var(--muted);
+  background: var(--ground-2); border: 1px solid var(--hair-soft); border-radius: 5px;
+  padding: 0.16rem 0.5rem; text-align: center;
+}
+
+/* The screen holds the box the image must fit, so nothing shifts on load. */
+.bframe-screen { position: relative; aspect-ratio: var(--frame-ratio); overflow: hidden; }
+.bframe-shot {
+  display: block; width: 100%; height: auto;
+  /* Idle: pulled back and cooled off, so the card reads as one object rather
+     than competing with the copy beside it. Hover restores the real thing. */
+  filter: saturate(.72) contrast(.96) brightness(.86);
+  transform: scale(1.01);
+  transition: filter .45s ease, transform 1.1s cubic-bezier(.22, .8, .28, 1);
+  will-change: transform;
+}
+/* Without a pan capture the image is exactly the frame; crop rather than squash. */
+.bframe:not(.bframe--pans) .bframe-shot { height: 100%; object-fit: cover; object-position: top center; }
+/* With one, it overhangs the bottom and slides up on hover. */
+.bframe--pans .bframe-shot { position: absolute; inset: 0 0 auto; }
+
+.work-row:hover .bframe,
+.work-row:focus-visible .bframe,
+.work-row:focus-within .bframe { border-color: var(--accent-line); box-shadow: 0 20px 44px -22px var(--glow); }
+
+.work-row:hover .bframe-shot,
+.work-row:focus-visible .bframe-shot,
+.work-row:focus-within .bframe-shot { filter: none; transform: scale(1.03); }
+
+.work-row:hover .bframe--pans .bframe-shot,
+.work-row:focus-visible .bframe--pans .bframe-shot,
+.work-row:focus-within .bframe--pans .bframe-shot {
+  transform: translateY(var(--pan-distance)) scale(1);
+}
+
+/* The hover clip. Sits over the poster and only becomes visible once it is
+   genuinely playing — see ProjectPreviewVideo, which withholds the src until
+   the visitor asks for it. */
+.bframe-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: top center;
+  opacity: 0; transition: opacity .35s ease; pointer-events: none;
+}
+.bframe-video[data-playing="true"] { opacity: 1; }
+
+/* The frame is the subject of the case study page, not a teaser: no idle
+   dimming, no hover motion, and room to be read. */
+.bframe--hero { margin-top: 2.6rem; }
+.bframe--hero .bframe-shot { filter: none; transform: none; }
+.bframe--hero .bframe-url { font-size: 0.7rem; }
+.grow { flex: 1; }
+.stackline { font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted); letter-spacing: 0.04em; padding-top: 0.95rem; border-top: 1px solid var(--hair-soft); }
+.links { display: flex; gap: 1.05rem; font-family: var(--font-jetbrains), monospace; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.links span { color: var(--accent); }
+.links span::after { content: " \2197"; }
+
+/* ---------------- skills ---------------- */
+.skills { display: grid; gap: 1.4rem; }
+.skillrow { display: grid; grid-template-columns: 160px 1fr; gap: 1rem; align-items: start; }
+@media (max-width: 600px) { .skillrow { grid-template-columns: 1fr; gap: 0.4rem; } }
+.skillrow dt { font-weight: 600; }
+.skillrow dd { margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.skillrow dd span {
+  font-family: var(--font-jetbrains), monospace; font-size: 0.82rem; color: var(--muted);
+  border: 1px solid var(--hair-soft); border-radius: 6px; padding: 0.32rem 0.7rem; background: var(--surface);
+}
+
+/* ---------------- contact ---------------- */
+.contact-mail {
+  display: inline-block; font-family: var(--font-display-face), ui-serif, Georgia, serif;
+  font-size: clamp(1.6rem, 5.5vw, 3rem); letter-spacing: -0.03em; text-decoration: none;
+  color: var(--fg); border-bottom: 3px solid var(--accent); padding-bottom: 5px; transition: color .18s;
+}
+.contact-mail:hover { color: var(--accent); }
+.contact-note { margin: 1.1rem 0 0; color: var(--fg-dim); max-width: var(--measure); }
+.contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); margin-top: 2.4rem; }
+@media (max-width: 880px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 440px) { .contact-grid { grid-template-columns: 1fr; } }
+.contact-card {
+  border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface);
+  padding: 1.4rem; text-decoration: none; display: flex; flex-direction: column;
+  gap: 0.32rem; min-height: 142px; position: relative;
+  transition: border-color .22s, transform .22s, box-shadow .22s;
+}
+.contact-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 16px 34px -24px var(--glow); }
+.contact-card svg { width: 22px; height: 22px; color: var(--accent); margin-bottom: 0.5rem; }
+.contact-card .who { font-family: var(--font-jetbrains), monospace; font-size: 0.76rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+.contact-card .handle { font-weight: 560; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-card .arrow { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--muted); transition: color .2s, transform .2s; }
+.contact-card:hover .arrow { color: var(--accent); transform: translate(2px, -2px); }
+
+/* ---------------- footer ---------------- */
+.site-footer {
+  border-top: 1px solid var(--hair); padding-block: 2.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.82rem; letter-spacing: 0.04em; color: var(--muted);
+}
+.site-footer .wrap { display: flex; flex-wrap: wrap; gap: 0.7rem 1.5rem; justify-content: space-between; }
+
+/* ---------------- scroll reveal: 0 KB of JS ---------------- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { animation: rise linear both; animation-timeline: view(); animation-range: entry 3% cover 22%; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .reveal { animation-timeline: auto; opacity: 1; transform: none; }
+  .btn:hover, .work-row:hover, .contact-card:hover { transform: none; }
+  /* The preview stops moving entirely — no pan, no scale. It still brightens
+     on hover, because a change of tone is not motion and it is the only cue
+     that the card is live. */
+  .bframe-shot,
+  .work-row:hover .bframe-shot,
+  .work-row:focus-within .bframe-shot { transform: none; }
+  .bframe--pans .bframe-shot { position: static; }
+}
+
+/* ---------------- floating assistant orb ---------------- */
+.ask-fab {
+  position: fixed; right: clamp(1rem, 3vw, 2rem); bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 60; width: 64px; height: 64px; border-radius: 50%;
+  display: block; text-decoration: none;
+  opacity: 0; transform: translateY(14px) scale(.9); pointer-events: none;
+  transition: opacity .32s ease, transform .32s cubic-bezier(.2, .9, .3, 1.3);
+}
+.ask-fab.is-in { opacity: 1; transform: none; pointer-events: auto; }
+.ask-fab .halo {
+  position: absolute; inset: -15px; border-radius: 50%;
+  background: radial-gradient(circle, var(--glow), transparent 66%);
+  filter: blur(10px); opacity: .9;
+}
+.ask-fab .orb {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, rgba(255,255,255,.4), transparent 46%),
+              linear-gradient(150deg, var(--accent), var(--accent-2));
+  box-shadow: 0 12px 28px -8px var(--glow), inset 0 -6px 14px rgba(0,0,0,.24);
+  border: 1px solid var(--accent-line);
+  display: grid; place-items: center; color: var(--on-accent);
+  transition: transform .25s cubic-bezier(.2, .9, .3, 1.3);
+}
+.ask-fab:hover .orb { transform: scale(1.07); }
+.ask-fab .orb svg { width: 27px; height: 27px; }
+.ask-fab .pulse { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .ask-fab.is-in .pulse { animation: ping 2.8s cubic-bezier(0, 0, .2, 1) infinite; }
+  @keyframes ping {
+    0% { transform: scale(1); opacity: .5; }
+    70% { transform: scale(1.7); opacity: 0; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+}
+.ask-fab .lbl {
+  position: absolute; right: calc(100% + 12px); top: 50%;
+  transform: translateY(-50%) translateX(6px); white-space: nowrap;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.08em;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--hair);
+  border-radius: 999px; padding: 0.55rem 0.9rem; opacity: 0; pointer-events: none;
+  transition: opacity .22s, transform .22s;
+}
+.ask-fab:hover .lbl, .ask-fab:focus-visible .lbl { opacity: 1; transform: translateY(-50%); }
+@media (max-width: 520px) { .ask-fab .lbl { display: none; } }
+
+/* ---------------- beyond-code ---------------- */
+.beyond-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 700px) { .beyond-list { grid-template-columns: 1fr; } }
+.beyond-list li { border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface); padding: 1.4rem; }
+.beyond-list h3 { margin: 0.5rem 0 0; font-size: 1.15rem; }
+.beyond-list p:last-child { margin: 0.45rem 0 0; color: var(--fg-dim); }
+
+/* ---------------- story path ---------------- */
+.story-teaser { border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface); padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 60ch; }
+.story-teaser h3 { margin: 0; font-size: var(--t-h3); }
+.story-teaser p { margin: 0.75rem 0 1.5rem; color: var(--fg-dim); }
+
+.story-shell { border: 1px solid var(--hair); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.story-stage { position: relative; aspect-ratio: 16 / 7; background: var(--ground-2); }
+@media (max-width: 700px) { .story-stage { aspect-ratio: 4 / 3; } }
+.story-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.story-lock {
+  position: absolute; inset: 0; z-index: 2; display: grid; place-items: center;
+  text-align: center; padding: 1.5rem;
+  background: color-mix(in srgb, var(--ground) 76%, transparent); backdrop-filter: blur(8px);
+}
+.story-lock-inner { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; max-width: 46ch; }
+.story-lock h3 { margin: 0; font-size: var(--t-h3); }
+.story-lock p { margin: 0; color: var(--fg-dim); }
+.story-note { font-size: 0.85rem; color: var(--muted) !important; }
+
+.story-caption {
+  position: absolute; inset: auto 0 0 0; z-index: 1; padding: 1.1rem 1.3rem;
+  border-top: 1px solid var(--hair);
+  background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(6px);
+}
+.story-caption h3 { margin: 0.3rem 0 0; font-size: 1.2rem; }
+.story-caption p { margin: 0.3rem 0 0; color: var(--fg-dim); font-size: 0.92rem; }
+
+.story-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding: 0.85rem 1.15rem; border-top: 1px solid var(--hair); background: var(--raised);
+  font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 0.73rem; color: var(--muted);
+}
+.story-pos { color: var(--fg); letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+.story-ctrls { display: flex; gap: 0.5rem; }
+.minibtn {
+  font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 0.7rem; letter-spacing: 0.07em;
+  padding: 0.5rem 0.85rem; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--hair); background: var(--surface); color: var(--fg);
+  transition: border-color .18s, color .18s, opacity .18s;
+}
+.minibtn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.minibtn:disabled { opacity: .4; cursor: not-allowed; }
+.minibtn--go { background: var(--accent); color: var(--on-accent); border-color: transparent; font-weight: 700; }
+.story-shell:fullscreen { display: flex; flex-direction: column; background: var(--ground); }
+.story-shell:fullscreen .story-stage { flex: 1; aspect-ratio: auto; }
+
+/* 3D story path additions */
+.story-stage { aspect-ratio: 16 / 9; }
+@media (max-width: 700px) { .story-stage { aspect-ratio: 4 / 3; } }
+.story-loading {
+  position: absolute; inset: 0; display: grid; place-items: center; margin: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 0.8rem;
+  color: var(--muted);
+}
+.story-note { margin: 0.85rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------------- resume page ---------------- */
+.resume-page { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 6vw, 4.5rem); }
+.resume-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.75rem;
+}
+.resume-head h1 { margin: 0.35rem 0 0; font-size: var(--t-h2); }
+.resume-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+
+/* ================= résumé viewer ================= */
+/* Height lives on the SHELL. Putting it on the frame does nothing: `flex: 1`
+   is `flex: 1 1 0%`, and a 0 basis in an auto-height column collapses it. */
+.resume-shell {
+  border: 1px solid var(--hair); border-radius: var(--r); overflow: hidden;
+  background: var(--surface); display: flex; flex-direction: column;
+  height: min(78vh, 1000px);
+}
+.resume-frame { flex: 1; min-height: 0; background: var(--ground-2); }
+/* iframe, not object: <object> hands the PDF to a plugin context that ignores
+   wheel events until clicked, which is why scrolling needed the scrollbar. */
+.resume-iframe { width: 100%; height: 100%; display: block; border: 0; }
+
+/* Our own control bar. The browser's toolbar is drawn inside the iframe and is
+   unreachable from here, so zoom and expand live together in one bar we own. */
+.resume-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.7rem 0.9rem; border-top: 1px solid var(--hair); background: var(--raised);
+}
+.resume-zoom, .resume-bar-right { display: flex; align-items: center; gap: 0.4rem; }
+.resume-bar button, .resume-bar a {
+  width: 42px; height: 42px; display: grid; place-items: center;
+  border-radius: 10px; cursor: pointer; text-decoration: none;
+  border: 1px solid var(--hair); background: var(--surface); color: var(--fg);
+  transition: border-color .18s, color .18s, opacity .18s;
+}
+.resume-bar button:hover:not(:disabled), .resume-bar a:hover {
+  border-color: var(--accent); color: var(--accent);
+}
+.resume-bar button:disabled { opacity: .35; cursor: not-allowed; }
+.resume-bar svg {
+  width: 20px; height: 20px; fill: none; stroke: currentColor;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.resume-zoom-val {
+  min-width: 62px; text-align: center;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.86rem; color: var(--fg); font-variant-numeric: tabular-nums;
+}
+
+.resume-overlay {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: color-mix(in srgb, var(--ground) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(120%);
+}
+.resume-overlay-doc {
+  width: min(100%, 1040px); height: min(92vh, 1320px);
+  display: flex; flex-direction: column;
+  border-radius: 14px; overflow: hidden; border: 1px solid var(--hair);
+  background: var(--surface); box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .6);
+}
+.resume-overlay-hint {
+  position: absolute; bottom: 1.1rem; left: 0; right: 0; text-align: center; margin: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted);
+}
+
+/* ================= assistant popup ================= */
+/* Docked, NOT modal: no backdrop, no scroll lock. The page stays usable. */
+.chat-pop {
+  position: fixed; right: clamp(1rem, 3vw, 2rem); bottom: calc(clamp(1rem, 3vw, 2rem) + 78px);
+  z-index: 70; width: min(400px, calc(100vw - 2rem));
+  height: min(560px, calc(100vh - 180px));
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid var(--hair); border-radius: 16px; background: var(--surface);
+  box-shadow: 0 30px 70px -25px rgba(0, 0, 0, .55);
+}
+.chat-pop.is-wide { width: min(660px, calc(100vw - 2rem)); height: min(720px, calc(100vh - 150px)); }
+@media (prefers-reduced-motion: no-preference) {
+  .chat-pop { animation: popIn .22s cubic-bezier(.2, .9, .3, 1.2) both; }
+  @keyframes popIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+}
+
+.chat-pop-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.85rem 1rem; border-bottom: 1px solid var(--hair-soft); background: var(--raised);
+}
+.chat-pop-title {
+  display: inline-flex; align-items: center; gap: 0.55rem; font-weight: 600; font-size: 0.95rem;
+}
+.chat-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.chat-pop-actions { display: flex; gap: 0.3rem; }
+.iconbtn {
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer; line-height: 1;
+  border: 1px solid transparent; background: transparent; color: var(--muted); font-size: 0.9rem;
+  transition: background .18s, color .18s;
+}
+.iconbtn:hover { background: var(--ground-2); color: var(--fg); }
+
+/* `overscroll-behavior: contain` keeps the transcript from chaining into the
+   page at the top or bottom of the list. It only covers the case where Lenis
+   is off (reduced motion, touch); the `data-lenis-prevent` on `.chat-pop` in
+   ChatPopup.tsx is what handles the smooth-scroll path. */
+.chat-pop-body {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain;
+  padding: 1rem; display: flex; flex-direction: column; gap: 0.9rem;
+}
+.chat-empty p { margin: 0 0 0.9rem; color: var(--muted); font-size: 0.92rem; }
+.chat-empty ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.chat-empty button {
+  width: 100%; text-align: left; cursor: pointer; font: inherit; font-size: 0.9rem;
+  color: var(--fg); background: var(--ground-2); border: 1px solid var(--hair-soft);
+  border-radius: 10px; padding: 0.6rem 0.75rem; transition: border-color .18s;
+}
+.chat-empty button:hover { border-color: var(--accent); }
+
+.chat-user {
+  align-self: flex-end; max-width: 85%; margin: 0; padding: 0.6rem 0.85rem;
+  border-radius: 14px 14px 4px 14px; background: var(--accent); color: var(--on-accent);
+  font-size: 0.94rem;
+}
+.chat-bot { max-width: 92%; }
+.chat-md { font-size: 0.94rem; line-height: 1.6; color: var(--fg-dim); }
+.chat-md > :first-child { margin-top: 0; }
+.chat-md > :last-child { margin-bottom: 0; }
+.chat-md a { color: var(--accent); }
+.chat-md li { margin-left: 1.1rem; list-style: disc; }
+.chat-listen {
+  margin-top: 0.5rem; cursor: pointer; font-family: var(--font-jetbrains), monospace;
+  font-size: 0.72rem; color: var(--muted); background: none; border: 0; padding: 0;
+}
+.chat-listen:hover { color: var(--accent); }
+.chat-thinking, .chat-error { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.chat-error { color: var(--accent); }
+
+.chat-pop-foot {
+  display: flex; align-items: flex-end; gap: 0.5rem; padding: 0.75rem;
+  border-top: 1px solid var(--hair-soft); background: var(--raised);
+}
+/* The composer text was invisible: the textarea inherited no colour, so it
+   rendered in the UA default against a dark surface. Set explicitly. */
+.chat-pop-foot textarea {
+  flex: 1; resize: none; font: inherit; font-size: 0.94rem; line-height: 1.45;
+  color: var(--fg);
+  background: var(--ground-2);
+  border: 1px solid var(--hair); border-radius: 10px; padding: 0.6rem 0.7rem;
+  max-height: 120px; outline: none; caret-color: var(--accent);
+}
+.chat-pop-foot textarea::placeholder { color: var(--muted); opacity: 1; }
+.chat-pop-foot textarea:focus { border-color: var(--accent); }
+.chat-send {
+  flex: none; width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+  border: 0; background: var(--accent); color: var(--on-accent); font-size: 1.05rem;
+  transition: opacity .18s;
+}
+.chat-send:disabled { opacity: .4; cursor: not-allowed; }
+.ask-fab.is-open .lbl { display: none; }
+
+/* /ask page composer — same explicit colour fix as the popup. */
+#ask-input {
+  color: var(--fg); background: var(--surface);
+  border: 1px solid var(--hair); caret-color: var(--accent);
+}
+#ask-input::placeholder { color: var(--muted); opacity: 1; }
+#ask-input:focus { border-color: var(--accent); outline: none; }

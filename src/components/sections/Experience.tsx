@@ -1,64 +1,56 @@
 import { experience, education } from "@/content/experience";
 
+/**
+ * One continuous track record: a single rail with a marker per entry, jobs and
+ * education in the same timeline rather than separate boxed lists.
+ */
 export function Experience() {
   return (
-    <section
-      id="experience"
-      aria-labelledby="experience-heading"
-      className="mx-auto max-w-3xl px-5 py-12"
-    >
-      <h2
-        id="experience-heading"
-        className="text-sm font-semibold uppercase tracking-widest text-muted"
-      >
-        Experience
-      </h2>
-      <ol className="mt-6 space-y-8">
+    <section id="experience" aria-labelledby="experience-heading" className="section wrap">
+      <div className="section-head reveal">
+        <p className="eyebrow">01 — Track record</p>
+        <h2 id="experience-heading">Experience</h2>
+      </div>
+
+      <ul className="roles">
         {experience.map((item) => (
-          <li key={`${item.organisation}-${item.role}`}>
-            <div className="flex items-baseline justify-between gap-4">
-              <h3 className="font-semibold">
-                {item.role}
-                <span className="font-normal text-muted">
-                  {" "}
-                  · {item.organisation}
-                </span>
-              </h3>
-              <span className="shrink-0 text-xs text-muted">
-                {item.timeframe}
-              </span>
+          <li
+            key={`${item.organisation}-${item.role}`}
+            className={`role reveal${item.current ? " role--now" : ""}`}
+          >
+            <div className="role-top">
+              <span className="role-when">{item.timeframe}</span>
+              {item.location ? <span className="role-when">{item.location}</span> : null}
+              {item.current ? <span className="now-chip">Now</span> : null}
             </div>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted">
+            <h3 className="role-title">
+              {item.role} <span className="role-org">· {item.organisation}</span>
+            </h3>
+            <ul className="role-bullets">
               {item.bullets.map((bullet) => (
                 <li key={bullet}>{bullet}</li>
               ))}
             </ul>
+            <ul className="role-tech">
+              {item.stack.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
           </li>
         ))}
-      </ol>
 
-      <h2 className="mt-12 text-sm font-semibold uppercase tracking-widest text-muted">
-        Education
-      </h2>
-      <ol className="mt-6 space-y-4">
         {education.map((item) => (
-          <li
-            key={item.institution}
-            className="flex items-baseline justify-between gap-4"
-          >
-            <div>
-              <h3 className="font-semibold">{item.qualification}</h3>
-              <p className="text-sm text-muted">{item.institution}</p>
-              {item.detail ? (
-                <p className="text-sm text-muted">{item.detail}</p>
-              ) : null}
+          <li key={item.institution} className="role reveal">
+            <div className="role-top">
+              <span className="role-when">{item.timeframe}</span>
+              {item.detail ? <span className="role-when">{item.detail}</span> : null}
             </div>
-            <span className="shrink-0 text-xs text-muted">
-              {item.timeframe}
-            </span>
+            <h3 className="role-title">
+              {item.qualification} <span className="role-org">· {item.institution}</span>
+            </h3>
           </li>
         ))}
-      </ol>
+      </ul>
     </section>
   );
 }

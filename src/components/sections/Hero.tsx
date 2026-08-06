@@ -1,37 +1,45 @@
+import Image from "next/image";
 import Link from "next/link";
 import { profile } from "@/content/profile";
 
 /**
- * Above the fold. Holds exactly three things: the name, the one-line
- * positioning statement, and two CTAs.
+ * Above the fold. Split copy-and-image: the positioning line stays hard-left
+ * where the F-pattern scan catches it, and the portrait is locked to a 4:5
+ * ratio so it can never stretch.
  *
- * Nothing personal, no hobbies, no animation gate, no mode toggle. A recruiter
- * must be able to answer "what does this person do, and with what" without
- * scrolling or clicking.
+ * Nothing personal, no hobbies — the only pointer is the "Beyond" nav item.
  */
 export function Hero() {
   return (
-    <section className="mx-auto max-w-3xl px-5 pb-16 pt-20">
-      <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-        {profile.name}
-      </h1>
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-fg">
-        {profile.positioning}
-      </p>
-      <p className="mt-2 text-sm text-muted">{profile.location}</p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          href="#work"
-          className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-bg"
-        >
-          See selected work
-        </Link>
-        <a
-          href={`mailto:${profile.email}`}
-          className="rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-surface"
-        >
-          Get in touch
-        </a>
+    <section className="hero wrap">
+      <div className="hero-grid">
+        <div>
+          <p className="eyebrow eyebrow--accent">{profile.openTo}</p>
+          <h1>{profile.name}</h1>
+          <p className="positioning">{profile.positioning}</p>
+          <p className="hero-loc">{profile.location}</p>
+
+          <div className="cta-row">
+            <Link className="btn btn-primary" href="/#experience">
+              Explore my work ↓
+            </Link>
+            <Link className="btn btn-ghost" href="/resume">
+              Résumé
+            </Link>
+          </div>
+        </div>
+
+        <div className="portrait">
+          {/* The only image on the page with `priority` — it is the LCP element. */}
+          <Image
+            src={profile.photo}
+            alt={`${profile.name}, ${profile.role}`}
+            width={760}
+            height={950}
+            priority
+            sizes="(max-width: 900px) 300px, 380px"
+          />
+        </div>
       </div>
     </section>
   );

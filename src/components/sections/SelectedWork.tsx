@@ -1,43 +1,59 @@
 import Link from "next/link";
 import { featuredProjects } from "@/content/projects";
+import { BrowserFrame } from "@/components/ui/BrowserFrame";
+import { ProjectPreviewVideo } from "@/components/ui/ProjectPreviewVideo";
 
 /**
- * Exactly three cards. Depth belongs on /work/[slug] — signal-to-noise on a
- * portfolio homepage drops sharply after the third project.
+ * Three equal rows, same size and shape — no ranking implied by tile size.
+ * Depth belongs on /work/[slug].
  */
 export function SelectedWork() {
   return (
-    <section
-      id="work"
-      aria-labelledby="work-heading"
-      className="mx-auto max-w-3xl px-5 py-12"
-    >
-      <h2 id="work-heading" className="text-sm font-semibold uppercase tracking-widest text-muted">
-        Selected work
-      </h2>
-      <ul className="mt-6 space-y-4">
+    <section id="work" aria-labelledby="work-heading" className="section wrap">
+      <div className="section-head reveal">
+        <p className="eyebrow">02 — Selected work</p>
+        <h2 id="work-heading">Things I&rsquo;ve built</h2>
+      </div>
+
+      <div className="work-list">
         {featuredProjects.map((project) => (
-          <li key={project.slug}>
-            <Link
-              href={`/work/${project.slug}`}
-              className="block rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent"
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <h3 className="font-semibold">{project.title}</h3>
-                <span className="shrink-0 text-xs text-muted">
-                  {project.timeframe}
-                </span>
+          <Link
+            key={project.slug}
+            href={`/work/${project.slug}`}
+            // Nothing captured yet? The row goes full width rather than
+            // reserving half of itself for an empty column.
+            className={`work-row reveal${project.media ? "" : " work-row--nomedia"}`}
+          >
+            <div className="body">
+              <p className="eyebrow eyebrow--accent">
+                {project.category} · {project.timeframe}
+              </p>
+              <h3>{project.title}</h3>
+              <p>{project.summary}</p>
+              <div className="grow" />
+              <p className="stackline">{project.stack.join(" · ")}</p>
+              <p className="links">
+                {project.liveUrl ? <span>Live</span> : null}
+                {project.repoUrl ? <span>Code</span> : null}
+              </p>
+            </div>
+            {project.media ? (
+              <div className="preview">
+                {/* The preview column is the narrower half of a 1.15fr 1fr
+                    grid inside a 1240px page, so it never exceeds ~520px. */}
+                <BrowserFrame
+                  media={project.media}
+                  sizes="(max-width: 800px) 92vw, 520px"
+                >
+                  {project.media.video ? (
+                    <ProjectPreviewVideo src={project.media.video} />
+                  ) : null}
+                </BrowserFrame>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {project.summary}
-              </p>
-              <p className="mt-3 font-mono text-xs text-muted">
-                {project.stack.join(" · ")}
-              </p>
-            </Link>
-          </li>
+            ) : null}
+          </Link>
         ))}
-      </ul>
+      </div>
     </section>
   );
 }

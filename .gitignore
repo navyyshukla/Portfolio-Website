@@ -1,11 +1,52 @@
+# ---- dependencies ----
 node_modules/
+.pnp
+.pnp.*
+
+# ---- build output ----
 .next/
 out/
 build/
-.DS_Store
-*.pem
-.env*
-!.env.example
-next-env.d.ts
-.vercel
+dist/
 *.tsbuildinfo
+next-env.d.ts
+
+# ---- environment & secrets ----
+# Never commit a real env file. The template is the one exception.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- hosting / tooling caches ----
+.vercel
+.turbo
+.eslintcache
+
+# ---- editor & OS noise ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# ---- logs ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- AI assistant working files ----
+# Kept local: this repo is public and doubles as a portfolio artifact, so the
+# planning/strategy material stays off it. Remove these lines if you'd rather
+# share them — CLAUDE.md is normally committed.
+#
+# `.claude/` is where all working state lives, including the project docs that
+# used to sit at `docs/`: `.claude/docs/STATE.md` (current status) and
+# `.claude/docs/DECISIONS.md` (why the rules are what they are). Notes, plans
+# and anything else *about* the work belong there too — not at the repo root.
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+research/
