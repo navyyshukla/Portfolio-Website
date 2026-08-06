@@ -185,13 +185,18 @@ h1, h2, h3 {
 .nav-name {
   font-family: var(--font-display-face), ui-serif, Georgia, serif;
   font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; color: var(--fg); text-decoration: none;
+  /* A wordmark that wraps stops being a wordmark. Without this the name broke
+     across two lines on a phone and grew the 64px header to 69px. */
+  white-space: nowrap;
 }
 .nav-links {
   display: flex; align-items: center; gap: clamp(0.75rem, 2.2vw, 1.75rem);
   list-style: none; margin: 0; padding: 0;
   font-size: 0.98rem; font-weight: 500;
 }
-.nav-links a { color: var(--muted); text-decoration: none; transition: color .18s; }
+/* Keeps "Résumé ↗" together — the ::after arrow was breaking onto its own
+   line, which was the other half of the two-line header on a phone. */
+.nav-links a { color: var(--muted); text-decoration: none; transition: color .18s; white-space: nowrap; }
 .nav-links a:hover { color: var(--fg); }
 .nav-links a.is-resume { color: var(--fg); }
 .nav-links a.is-resume::after { content: " \2197"; color: var(--accent); }
@@ -212,6 +217,26 @@ h1, h2, h3 {
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 @media (max-width: 780px) { .nav-hide { display: none; } }
+
+/*
+ * Phones. Measured at 390px the wordmark and the links together needed more
+ * than the 358px of content width available, so both wrapped. Shrinking the
+ * type alone was not enough — it still overflowed by 360px — so the narrowest
+ * sizes also drop Contact, which is the one nav item with three other routes
+ * to it (hero CTA, footer, and the #contact section itself). What a recruiter
+ * needs on a phone is Work and Résumé, and those stay.
+ */
+@media (max-width: 460px) {
+  .nav-hide-sm { display: none; }
+  .nav-name { font-size: 1.15rem; }
+  .nav-links { gap: 0.85rem; font-size: 0.92rem; }
+}
+/* 320px is the narrowest phone still in use (SE, gen 1). At the tier above it
+   the header still ran ~30px past the viewport. */
+@media (max-width: 360px) {
+  .nav-name { font-size: 1rem; }
+  .nav-links { gap: 0.6rem; font-size: 0.86rem; }
+}
 
 /* ---------------- buttons ---------------- */
 .btn {
@@ -412,10 +437,14 @@ h1, h2, h3 {
 .contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); margin-top: 2.4rem; }
 @media (max-width: 880px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 440px) { .contact-grid { grid-template-columns: 1fr; } }
+/* A grid item defaults to `min-width: auto`, which means it refuses to shrink
+   below its content — and `.handle` below is `white-space: nowrap`. So a long
+   handle pushed its 1fr track wider than the column and the whole grid spilled
+   past the viewport, with the ellipsis never getting a chance to engage. */
 .contact-card {
   border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface);
   padding: 1.4rem; text-decoration: none; display: flex; flex-direction: column;
-  gap: 0.32rem; min-height: 142px; position: relative;
+  gap: 0.32rem; min-height: 142px; position: relative; min-width: 0;
   transition: border-color .22s, transform .22s, box-shadow .22s;
 }
 .contact-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 16px 34px -24px var(--glow); }
