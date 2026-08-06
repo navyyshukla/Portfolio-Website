@@ -22,6 +22,17 @@ import { hasProvider, streamCompletion, toTextStream, type LlmMessage } from "@/
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Comfortably longer than any answer this route produces — a long streamed
+ * reply runs a few seconds — and far short of the 300s a Vercel Hobby function
+ * now allows by default under fluid compute.
+ *
+ * Stated explicitly because the default is a platform setting, not a promise:
+ * with fluid compute off, the Hobby default drops back to 10s, which would cut
+ * a real answer off mid-sentence and look like a bug in the assistant.
+ */
+export const maxDuration = 60;
+
 function json(body: unknown, status: number, headers?: HeadersInit) {
   return new Response(JSON.stringify(body), {
     status,

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NS">
+  <!--
+    Favicon. Next picks this up by filename and emits the <link rel="icon">.
+    Colours are literals from globals.css (--ground, --accent) because an SVG
+    served as an icon has no access to the page's custom properties.
+
+    Deliberately readable at 16px: one heavy monogram, no thin strokes, and a
+    generous corner radius so it reads as a mark rather than a screenshot.
+  -->
+  <rect width="64" height="64" rx="14" fill="#070c17"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="none" stroke="#26375f" stroke-width="1.5"/>
+  <text
+    x="32" y="33"
+    text-anchor="middle" dominant-baseline="central"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="34" font-weight="700" letter-spacing="-1"
+    fill="#ffb072"
+  >NS</text>
+</svg>

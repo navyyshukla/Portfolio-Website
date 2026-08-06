@@ -1,0 +1,58 @@
+# Gates what Vercel does not.
+#
+# Vercel's build runs `next build` and nothing else — a type error in a file the
+# build happens not to typecheck, a lint regression, or a retrieval miss would
+# all sail through to production. The step that matters most here is
+# `eval:retrieval`: prompt size is the assistant's capacity budget, and a
+# regression there quietly costs visitor answers rather than breaking anything
+# loudly.
+#
+# No secrets. Every `process.env` read in `src/lib/**` happens inside a
+# function rather than at module scope, so the build never needs a provider key,
+# and the retrieval eval makes no network calls at all.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [development]
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches `engines.node` in package.json.
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      # Fails on a retrieval miss or a prompt-token budget breach.
+      - name: Retrieval eval
+        run: npm run eval:retrieval
