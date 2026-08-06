@@ -58,8 +58,12 @@ export const profile: Profile = {
 /**
  * Absolute site origin — used for canonical URLs, the sitemap and OG images.
  *
- * TODO: no custom domain yet. Replace this with the real deployment URL (the
- * Vercel one, or a bought domain) before going live — canonical tags and the
- * sitemap point here, so a wrong value quietly harms search indexing.
+ * This is the live production origin, set once the Vercel project existed
+ * rather than guessed beforehand. Everything downstream is derived from it:
+ * `metadataBase`, every canonical tag, `openGraph.url`, the JSON-LD `url`,
+ * every `sitemap.ts` entry and the sitemap line in `robots.ts`. A wrong value
+ * breaks nothing at runtime and quietly points search engines at a host we do
+ * not control, so it changes only alongside the real domain — and if a custom
+ * domain is ever added, this is the one line to update.
  */
-export const siteUrl = "https://naivedyashukla.vercel.app";
+export const siteUrl = "https://naivedya-shukla.vercel.app";

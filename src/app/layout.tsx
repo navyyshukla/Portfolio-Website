@@ -7,6 +7,7 @@ import { PaletteShim } from "@/components/ui/PaletteShim";
 import { DotField } from "@/components/ui/DotField";
 import { Assistant } from "@/components/ui/Assistant";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
+import { Analytics } from "@vercel/analytics/next";
 import { buildMetadata, personJsonLd } from "@/lib/seo";
 import { profile, siteUrl } from "@/content/profile";
 
@@ -96,6 +97,15 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()) }}
         />
+        {/*
+          The one non-essential script on the page, and a deliberate exception
+          to the rule that nothing but the site's own code ships to "/" — see
+          DECISIONS.md. Cookieless, so no consent banner, and a leaf client
+          component so the wrapper stays a server component. It costs about a
+          kilobyte; if it ever costs meaningfully more, the budget wins and
+          this goes.
+        */}
+        <Analytics />
       </body>
     </html>
   );
