@@ -14,7 +14,6 @@ export function Hero() {
     <section className="hero wrap">
       <div className="hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow eyebrow--accent">{profile.openTo}</p>
           <h1>{profile.name}</h1>
           <p className="positioning">{profile.positioning}</p>
           <p className="hero-loc">{profile.location}</p>
