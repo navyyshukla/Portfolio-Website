@@ -25,7 +25,6 @@ export interface Profile {
   resumeHref: string;
   /** Portrait in /public. Replace the file to change the photo; no code change. */
   photo: string;
-  openTo: string;
   socials: SocialLink[];
 }
 
@@ -39,7 +38,6 @@ export const profile: Profile = {
   email: "naivedya9876@gmail.com",
   resumeHref: "/resume.pdf",
   photo: "/photo.png",
-  openTo: "Open to software engineering roles",
   socials: [
     { label: "GitHub", href: "https://github.com/navyyshukla", handle: "@navyyshukla" },
     {

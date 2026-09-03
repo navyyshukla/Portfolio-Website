@@ -41,8 +41,8 @@ export function Contact() {
           {profile.email}
         </a>
         <p className="contact-note">
-          {profile.openTo}. The fastest way to reach me is email — or ask the
-          assistant anything about my work.
+          The fastest way to reach me is email — or ask the assistant
+          anything about my work.
         </p>
       </div>
 
