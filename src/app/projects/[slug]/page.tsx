@@ -85,6 +85,8 @@ export default async function RepoPage({
           title={entry.title}
           category={entry.category}
           stack={entry.stack}
+          coverTitle={entry.coverTitle}
+          coverLine={entry.coverLine}
           banner
         />
       </div>

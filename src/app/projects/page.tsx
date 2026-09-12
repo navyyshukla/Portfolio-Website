@@ -64,6 +64,8 @@ export default function ProjectsPage() {
                     title={entry.title}
                     category={entry.category}
                     stack={entry.stack}
+                    coverTitle={entry.coverTitle}
+                    coverLine={entry.coverLine}
                   />
                 )}
               </div>

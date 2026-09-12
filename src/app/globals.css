@@ -574,19 +574,24 @@ h1, h2, h3 {
   /* A scrim, so the meta line stays readable over the busiest pattern. */
   background: linear-gradient(to top, var(--ground-2) 12%, transparent);
 }
-.pcover-initials {
+.pcover-name {
   font-family: var(--font-display-face), Georgia, serif;
-  font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1; color: var(--fg);
+  /* Smaller than the two-letter mark this replaced — a real name has to fit,
+     and the card prints the full title underneath anyway. */
+  font-size: clamp(1.25rem, 2.9vw, 1.85rem); line-height: 1.15; color: var(--fg);
+  /* Two lines at most; a third would collide with the meta line under it. */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; text-wrap: balance;
 }
 .pcover-meta {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--muted);
+  font-size: 0.66rem; letter-spacing: 0.02em; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 /* On a repository's own page the cover is decoration, not the subject — at a
    full 1440/900 it pushed the actual notes off the first screen. */
 .pcover--banner { aspect-ratio: 1440 / 340; }
-.pcover--banner .pcover-initials { font-size: clamp(1.5rem, 3.4vw, 2.2rem); }
+.pcover--banner .pcover-name { font-size: clamp(1.35rem, 3vw, 2rem); -webkit-line-clamp: 1; }
 
 .work-row:hover .pcover,
 .work-row:focus-within .pcover { border-color: var(--accent-line); box-shadow: 0 20px 44px -22px var(--glow); }

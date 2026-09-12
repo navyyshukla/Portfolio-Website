@@ -33,17 +33,21 @@ function hash(input: string): number {
 const HUES = [-34, -21, -9, 0, 13, 28, 46];
 
 /**
- * Two letters, drawn large. Initials of the first two words where the title has
- * them ("Handwritten Digit Recognition" → HD), otherwise the first two letters
- * of the only word there is ("AGROBOT" → AG).
+ * The name to draw on the cover.
+ *
+ * Initials were the first attempt and they were useless: "TP" and "RV" tell a
+ * visitor nothing, and the card already prints the real title directly below.
+ * So the cover carries a readable name instead — the curated `coverTitle` from
+ * `repo-notes.ts` where one is set, otherwise the title with any trailing
+ * explanation dropped, since "AGROBOT: Automated Seed Sowing Robot" is a
+ * sentence and "AGROBOT" is a name.
  */
-function initials(title: string): string {
-  const words = title
-    .replace(/[^A-Za-z0-9 ]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return (words[0] ?? "??").slice(0, 2).toUpperCase();
+function coverName(title: string, override?: string): string {
+  if (override) return override;
+  // "AGROBOT: Automated Seed Sowing Robot" → "AGROBOT"
+  const beforeColon = title.split(":")[0].trim();
+  // "Handwritten Digit Recognition using a CNN" → "Handwritten Digit Recognition"
+  return beforeColon.split(/\s+(?:using|with|for|built)\s+/i)[0].trim();
 }
 
 /**
@@ -157,12 +161,18 @@ export default function ProjectCover({
   title,
   category,
   stack,
+  coverTitle,
+  coverLine,
   banner = false,
 }: {
   slug: string;
   title: string;
   category: string;
   stack: string[];
+  /** A shorter name for the cover, where the full title is a sentence. */
+  coverTitle?: string;
+  /** What the project does, in a few words. Falls back to category · language. */
+  coverLine?: string;
   /** Short and wide, for the top of a page where the cover is not the subject. */
   banner?: boolean;
 }) {
@@ -187,9 +197,9 @@ export default function ProjectCover({
         {pattern(variant, h)}
       </svg>
       <div className="pcover-label" aria-hidden="true">
-        <span className="pcover-initials">{initials(title)}</span>
+        <span className="pcover-name">{coverName(title, coverTitle)}</span>
         <span className="pcover-meta">
-          {[category, stack[0]].filter(Boolean).join(" · ")}
+          {coverLine ?? [category, stack[0]].filter(Boolean).join(" · ")}
         </span>
       </div>
     </div>

@@ -20,10 +20,23 @@ export interface RepoNote {
   blurb: string;
   /** Replaces the scraped highlights entirely. Omit to keep the synced ones. */
   highlights?: string[];
+  /**
+   * A shorter name for the generated cover, where the full title is really a
+   * sentence. Omit and the cover trims the title itself.
+   */
+  coverTitle?: string;
+  /**
+   * What the project does, in a few words, drawn under the name on the cover.
+   * Omit and the cover falls back to "Category · Language", which says what
+   * kind of thing it is but not what it is *for*.
+   */
+  coverLine?: string;
 }
 
 export const repoNotes: Record<string, RepoNote> = {
   agrobot: {
+    coverTitle: "AGROBOT",
+    coverLine: "Sows a row, and checks the soil first",
     blurb:
       "A seed-sowing robot built for a college project: it drives itself down a row, checks the soil before it commits, and drops seed at a fixed spacing.",
     highlights: [
@@ -34,6 +47,8 @@ export const repoNotes: Record<string, RepoNote> = {
   },
 
   "creatorjoy-ai-pipeline": {
+    coverTitle: "CreatorJoy",
+    coverLine: "A YouTube link in, an avatar video out",
     blurb:
       "A zero-touch pipeline that turns a YouTube URL and a topic into a lip-synced avatar video: it pulls the thumbnail, writes a script, clones the voice and renders the result without anyone in the loop.",
     highlights: [
@@ -44,6 +59,8 @@ export const repoNotes: Record<string, RepoNote> = {
   },
 
   digitrecognition: {
+    coverTitle: "Digit Recognition",
+    coverLine: "A CNN that reads handwriting",
     blurb:
       "A convolutional network over MNIST, written to understand the architecture rather than to beat a benchmark — every layer chosen deliberately and the result checked against handwriting the model never saw.",
     highlights: [
@@ -53,11 +70,15 @@ export const repoNotes: Record<string, RepoNote> = {
   },
 
   "ml-for-nextgen-wireless-networks": {
+    coverTitle: "NextGen Wireless",
+    coverLine: "Allocating satellite links with deep RL",
     blurb:
       "Machine learning applied to next-generation wireless channels — predicting link behaviour from measured conditions instead of relying on an analytical model that assumes them.",
   },
 
   "n8n-social-media-pipeline": {
+    coverTitle: "Social Pipeline",
+    coverLine: "A topic in, a thread out, on a schedule",
     blurb:
       "A scheduled content pipeline: n8n generates posts with Groq, stores them in Supabase, and publishes on a cadence without anyone opening the app.",
     highlights: [
@@ -67,11 +88,15 @@ export const repoNotes: Record<string, RepoNote> = {
   },
 
   "portfolio-website": {
+    coverTitle: "This Site",
+    coverLine: "Next.js 16, static, with a grounded assistant",
     blurb:
       "This site. Next.js 16 on the App Router, statically generated apart from one streaming chat route, with a grounded assistant that answers from a corpus built out of the repository's own content files.",
   },
 
   "rtsp-overlay-app": {
+    coverTitle: "RTSP Overlay",
+    coverLine: "Live overlays on a video feed",
     blurb:
       "A full-stack app for putting live overlays on an RTSP video feed — the stream is transcoded to something a browser will actually play, and overlays are positioned and persisted on top of it.",
     highlights: [

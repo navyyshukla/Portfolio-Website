@@ -35,6 +35,10 @@ export interface CatalogEntry {
   featured: boolean;
   /** Body text on the entry's own page. */
   highlights: string[];
+  /** Curated name for the generated cover, where the title is a sentence. */
+  coverTitle?: string;
+  /** What it does, in a few words, for the generated cover. */
+  coverLine?: string;
 }
 
 /**
@@ -102,6 +106,8 @@ function repoEntry(r: (typeof repos)[number]): CatalogEntry {
     liveUrl: r.liveUrl,
     featured: false,
     highlights: note?.highlights ?? r.highlights,
+    coverTitle: note?.coverTitle,
+    coverLine: note?.coverLine,
   };
 }
 
