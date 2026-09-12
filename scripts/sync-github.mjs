@@ -370,7 +370,11 @@ function render(entries) {
  * If an entry needs permanent wording, promote it to a full case study in
  * \`projects.ts\`; the script skips any repo already recorded there.
  *
- * These feed the assistant only. Nothing here renders on the site.
+ * These feed the assistant AND render at \`/projects/<slug>\`. The summaries and
+ * highlights here are scraped, so anything a visitor reads is overridden by
+ * \`repo-notes.ts\` — a hand-written file this script never touches. Add a note
+ * there rather than editing wording here, which the next sync would discard.
+ * \`keywords\` is retrieval-only and is never shown.
  * Last synced: ${new Date().toISOString().slice(0, 10)}
  */
 

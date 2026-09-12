@@ -338,11 +338,14 @@ h1, h2, h3 {
   overflow: hidden; text-decoration: none;
   transition: border-color .22s, transform .22s, box-shadow .22s;
 }
-.work-row--nomedia { grid-template-columns: 1fr; }
 .work-row:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 40px -24px var(--glow); }
 .work-row .body { padding: clamp(1.4rem, 3vw, 2.2rem); display: flex; flex-direction: column; gap: 0.7rem; }
 .work-row h3 { margin: 0; font-size: var(--t-h3); }
 .work-row p { margin: 0; color: var(--fg-dim); max-width: 48ch; }
+/* The way out to the full catalogue. Centred under the rows so it reads as a
+   continuation of the list rather than another card. */
+.work-more { display: flex; justify-content: center; margin: calc(var(--gap) * 1.4) 0 0; }
+
 .work-row .preview {
   background: radial-gradient(90% 120% at 78% 12%, var(--accent-soft), transparent 66%), var(--ground-2);
   border-left: 1px solid var(--hair); display: grid; place-items: center;
@@ -545,6 +548,245 @@ h1, h2, h3 {
 @media (max-width: 520px) { .ask-fab .lbl { display: none; } }
 
 /* ---------------- beyond-code ---------------- */
+/* ---------------- generated covers ----------------
+   For projects with nothing to screenshot. The art is inline SVG tinted with
+   the site's own accent, so it themes for free; the per-project hue offset
+   arrives as --cover-hue from the component. Rotating the hue on the art layer
+   only keeps the label text at full contrast. */
+.pcover {
+  position: relative; width: 100%; aspect-ratio: 1440 / 900;
+  border: 1px solid var(--hair); border-radius: 12px; overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 18% 8%, var(--accent-soft), transparent 62%),
+    var(--ground-2);
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.pcover-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  color: var(--accent);
+  filter: hue-rotate(var(--cover-hue, 0deg));
+  opacity: .85;
+}
+.pcover-label {
+  position: absolute; inset: auto 0 0 0;
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: clamp(0.9rem, 2.4vw, 1.4rem);
+  /* A scrim, so the meta line stays readable over the busiest pattern. */
+  background: linear-gradient(to top, var(--ground-2) 12%, transparent);
+}
+.pcover-name {
+  font-family: var(--font-display-face), Georgia, serif;
+  /* Smaller than the two-letter mark this replaced — a real name has to fit,
+     and the card prints the full title underneath anyway. */
+  font-size: clamp(1.25rem, 2.9vw, 1.85rem); line-height: 1.15; color: var(--fg);
+  /* Two lines at most; a third would collide with the meta line under it. */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; text-wrap: balance;
+}
+.pcover-meta {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.66rem; letter-spacing: 0.02em; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* On a repository's own page the cover is decoration, not the subject — at a
+   full 1440/900 it pushed the actual notes off the first screen. */
+.pcover--banner { aspect-ratio: 1440 / 340; }
+.pcover--banner .pcover-name { font-size: clamp(1.35rem, 3vw, 2rem); -webkit-line-clamp: 1; }
+
+.work-row:hover .pcover,
+.work-row:focus-within .pcover { border-color: var(--accent-line); box-shadow: 0 20px 44px -22px var(--glow); }
+
+/* ---------------- cover artwork ----------------
+   Each scene in project-art.tsx draws what its project does. Everything below
+   is idle-state styling plus motion that only runs on hover/focus of the card,
+   and only on `transform` and `opacity` — no layout, no paint-heavy filters.
+   The whole animated half sits inside a no-preference block, so a
+   reduced-motion visitor gets the drawing at rest with nothing moving. */
+
+/* The art lifts very slightly with the card, the way the screenshots do. */
+.pcover-art { transition: transform 1.1s cubic-bezier(.22, .8, .28, 1); }
+.project-card:hover .pcover-art,
+.project-card:focus-within .pcover-art,
+.work-row:hover .pcover-art,
+.work-row:focus-within .pcover-art { transform: scale(1.025); }
+
+/* Parts that are "off" until the card is hovered read as dim, not invisible,
+   so the drawing is still complete at rest. */
+.art-seed, .art-ping, .art-pulse { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Seeds drop into the row. */
+  .project-card:hover .art-seed,
+  .project-card:focus-within .art-seed,
+  .work-row:hover .art-seed,
+  .work-row:focus-within .art-seed { animation: seed-drop 1.6s ease-in infinite; }
+  @keyframes seed-drop {
+    0%   { opacity: 0; transform: translateY(0); }
+    12%  { opacity: .8; }
+    80%  { opacity: .8; transform: translateY(160px); }
+    100% { opacity: 0; transform: translateY(168px); }
+  }
+
+  /* The wheels turn while it drives. */
+  .project-card:hover .art-wheel,
+  .work-row:hover .art-wheel { animation: wheel-spin 2.4s linear infinite; transform-origin: 660px 468px; }
+  @keyframes wheel-spin { to { transform: rotate(360deg); } }
+
+  /* Sonar, looking ahead. */
+  .project-card:hover .art-ping,
+  .project-card:focus-within .art-ping,
+  .work-row:hover .art-ping { animation: ping-out 1.8s ease-out infinite; }
+  @keyframes ping-out {
+    0%   { opacity: 0; transform: translateX(-14px); }
+    35%  { opacity: .55; }
+    100% { opacity: 0; transform: translateX(26px); }
+  }
+
+  /* Work moving between stages of a pipeline. */
+  .project-card:hover .art-flow circle,
+  .project-card:focus-within .art-flow circle,
+  .work-row:hover .art-flow circle { animation: flow 1.8s ease-in-out infinite; }
+  @keyframes flow {
+    0%, 100% { opacity: .25; transform: translateX(-8px); }
+    50%      { opacity: .95; transform: translateX(8px); }
+  }
+  .project-card:hover .art-pulse,
+  .project-card:focus-within .art-pulse,
+  .work-row:hover .art-pulse { animation: pulse-run 2s ease-in-out infinite; }
+  @keyframes pulse-run {
+    0%   { opacity: 0; transform: translateX(0); }
+    20%  { opacity: .9; }
+    90%  { opacity: .9; transform: translateX(112px); }
+    100% { opacity: 0; transform: translateX(120px); }
+  }
+
+  /* Stages and nodes light up in order, left to right. */
+  .project-card:hover .art-stage,
+  .project-card:focus-within .art-stage,
+  .work-row:hover .art-stage,
+  .project-card:hover .art-node,
+  .project-card:focus-within .art-node,
+  .work-row:hover .art-node { animation: lift 2.4s ease-in-out infinite; }
+  @keyframes lift {
+    0%, 100% { opacity: .8; transform: translateY(0); }
+    50%      { opacity: 1; transform: translateY(-7px); }
+  }
+
+  /* A voice, as bars. */
+  .project-card:hover .art-wave line,
+  .project-card:focus-within .art-wave line,
+  .work-row:hover .art-wave line { animation: wave 1s ease-in-out infinite; transform-origin: center; }
+  @keyframes wave {
+    0%, 100% { transform: scaleY(.55); }
+    50%      { transform: scaleY(1.25); }
+  }
+
+  /* Class scores settling, with the winner arriving last. */
+  .project-card:hover .art-bar,
+  .project-card:focus-within .art-bar,
+  .work-row:hover .art-bar { animation: bar-in .9s ease-out both; transform-origin: 840px center; }
+  @keyframes bar-in { from { transform: scaleX(.12); } to { transform: scaleX(1); } }
+
+  /* Reflecting-surface cells retuning their phase. */
+  .project-card:hover .art-irs-cell,
+  .project-card:focus-within .art-irs-cell,
+  .work-row:hover .art-irs-cell { animation: irs 2.2s ease-in-out infinite; }
+  @keyframes irs {
+    0%, 100% { opacity: .18; }
+    50%      { opacity: .85; }
+  }
+
+  /* Signal travelling along each link. */
+  .project-card:hover .art-link,
+  .project-card:focus-within .art-link,
+  .work-row:hover .art-link { animation: link-run 1.6s linear infinite; }
+  @keyframes link-run { to { stroke-dashoffset: -60; } }
+
+  /* The assistant, typing. */
+  .project-card:hover .art-caret,
+  .project-card:focus-within .art-caret,
+  .work-row:hover .art-caret { animation: caret 1.1s steps(1) infinite; }
+  @keyframes caret { 0%, 49% { opacity: .9; } 50%, 100% { opacity: 0; } }
+
+  /* Overlays nudged around, the way you would drag them. */
+  .project-card:hover .art-ov--a,
+  .project-card:focus-within .art-ov--a,
+  .work-row:hover .art-ov--a { animation: drag-a 3.4s ease-in-out infinite; }
+  @keyframes drag-a {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(28px, 14px); }
+  }
+  .project-card:hover .art-ov--b,
+  .project-card:focus-within .art-ov--b,
+  .work-row:hover .art-ov--b { animation: drag-b 3.4s ease-in-out infinite; }
+  @keyframes drag-b {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-22px, -12px); }
+  }
+  /* The playhead advancing. */
+  .project-card:hover .art-scrub,
+  .work-row:hover .art-scrub { animation: scrub 3s ease-in-out infinite; transform-origin: 190px center; }
+  @keyframes scrub {
+    0%, 100% { transform: scaleX(.55); }
+    50%      { transform: scaleX(1); }
+  }
+}
+
+/* ---------------- terminal frame ----------------
+   Reuses .bframe wholesale — border, bar, dots — so a card showing program
+   output sits beside the screenshot cards as a sibling, not a second design. */
+.bframe--term .bframe-url { text-align: left; }
+.bframe-term-screen {
+  aspect-ratio: var(--frame-ratio, 1440 / 900);
+  overflow: hidden; background: var(--ground-2);
+  padding: clamp(0.7rem, 1.8vw, 1.05rem);
+}
+.bframe-term-screen pre {
+  margin: 0; font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: clamp(0.5rem, 0.92vw, 0.66rem); line-height: 1.75;
+  color: var(--fg-dim); white-space: pre; overflow: hidden;
+}
+.bframe-term-screen .term-cmd { color: var(--accent); }
+.bframe-term-screen .term-note { color: var(--muted); }
+/* On a case study the frame is the subject: room to breathe and real type. */
+.bframe--termhero .bframe-term-screen { aspect-ratio: auto; padding: clamp(1.1rem, 2.6vw, 1.8rem); }
+.bframe--termhero .bframe-term-screen pre { font-size: clamp(0.68rem, 1.15vw, 0.84rem); overflow-x: auto; }
+
+/* ---------------- project catalogue ---------------- */
+.project-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 800px) { .project-grid { grid-template-columns: 1fr; } }
+.project-card {
+  display: flex; flex-direction: column; height: 100%;
+  border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface);
+  overflow: hidden; text-decoration: none;
+  transition: border-color .22s, transform .22s, box-shadow .22s;
+}
+.project-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 40px -24px var(--glow); }
+/* Every shot is the same box, whatever is inside it.
+   A browser or terminal frame carries a ~38px title bar that a generated cover
+   does not, so left alone the grid's rows started their copy at two different
+   heights. The box is fixed here and the frame's screen takes whatever is
+   left, which also stops one long summary from stretching its neighbour. */
+.project-card .shot {
+  border-bottom: 1px solid var(--hair); background: var(--ground-2);
+  aspect-ratio: 1440 / 900; display: grid; overflow: hidden;
+}
+.project-card .shot > * { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.project-card .shot .bframe-screen,
+.project-card .shot .bframe-term-screen { flex: 1; min-height: 0; aspect-ratio: auto; }
+.project-card .shot .pcover { aspect-ratio: auto; }
+/* The sample is short and the box is not; centre it rather than leaving it
+   pinned to the top above a block of nothing. */
+.project-card .shot .bframe-term-screen { justify-content: center; }
+/* The cover and frame sit flush inside the card; the card draws the border. */
+.project-card .shot .pcover,
+.project-card .shot .bframe { border: none; border-radius: 0; box-shadow: none; }
+.project-card .body { padding: clamp(1.1rem, 2.4vw, 1.5rem); display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
+.project-card h3 { margin: 0; font-size: 1.2rem; }
+.project-card p { margin: 0; color: var(--fg-dim); }
+.project-card .stackline { margin-top: auto; padding-top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) { .project-card:hover { transform: none; } }
+
 .beyond-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 700px) { .beyond-list { grid-template-columns: 1fr; } }
 .beyond-list li { border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface); padding: 1.4rem; }

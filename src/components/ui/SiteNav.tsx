@@ -21,6 +21,11 @@ export function SiteNav() {
             <li>
               <Link href="/#work">Work</Link>
             </li>
+            {/* Hidden with Experience on narrow phones — "/projects" is still
+                reachable from the Selected work section and the ⌘K palette. */}
+            <li className="nav-hide">
+              <Link href="/projects">Projects</Link>
+            </li>
             <li className="nav-hide">
               <Link href="/beyond-code">Beyond</Link>
             </li>
