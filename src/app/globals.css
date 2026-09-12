@@ -596,6 +596,142 @@ h1, h2, h3 {
 .work-row:hover .pcover,
 .work-row:focus-within .pcover { border-color: var(--accent-line); box-shadow: 0 20px 44px -22px var(--glow); }
 
+/* ---------------- cover artwork ----------------
+   Each scene in project-art.tsx draws what its project does. Everything below
+   is idle-state styling plus motion that only runs on hover/focus of the card,
+   and only on `transform` and `opacity` — no layout, no paint-heavy filters.
+   The whole animated half sits inside a no-preference block, so a
+   reduced-motion visitor gets the drawing at rest with nothing moving. */
+
+/* The art lifts very slightly with the card, the way the screenshots do. */
+.pcover-art { transition: transform 1.1s cubic-bezier(.22, .8, .28, 1); }
+.project-card:hover .pcover-art,
+.project-card:focus-within .pcover-art,
+.work-row:hover .pcover-art,
+.work-row:focus-within .pcover-art { transform: scale(1.025); }
+
+/* Parts that are "off" until the card is hovered read as dim, not invisible,
+   so the drawing is still complete at rest. */
+.art-seed, .art-ping, .art-pulse { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Seeds drop into the row. */
+  .project-card:hover .art-seed,
+  .project-card:focus-within .art-seed,
+  .work-row:hover .art-seed,
+  .work-row:focus-within .art-seed { animation: seed-drop 1.6s ease-in infinite; }
+  @keyframes seed-drop {
+    0%   { opacity: 0; transform: translateY(0); }
+    12%  { opacity: .8; }
+    80%  { opacity: .8; transform: translateY(160px); }
+    100% { opacity: 0; transform: translateY(168px); }
+  }
+
+  /* The wheels turn while it drives. */
+  .project-card:hover .art-wheel,
+  .work-row:hover .art-wheel { animation: wheel-spin 2.4s linear infinite; transform-origin: 660px 468px; }
+  @keyframes wheel-spin { to { transform: rotate(360deg); } }
+
+  /* Sonar, looking ahead. */
+  .project-card:hover .art-ping,
+  .project-card:focus-within .art-ping,
+  .work-row:hover .art-ping { animation: ping-out 1.8s ease-out infinite; }
+  @keyframes ping-out {
+    0%   { opacity: 0; transform: translateX(-14px); }
+    35%  { opacity: .55; }
+    100% { opacity: 0; transform: translateX(26px); }
+  }
+
+  /* Work moving between stages of a pipeline. */
+  .project-card:hover .art-flow circle,
+  .project-card:focus-within .art-flow circle,
+  .work-row:hover .art-flow circle { animation: flow 1.8s ease-in-out infinite; }
+  @keyframes flow {
+    0%, 100% { opacity: .25; transform: translateX(-8px); }
+    50%      { opacity: .95; transform: translateX(8px); }
+  }
+  .project-card:hover .art-pulse,
+  .project-card:focus-within .art-pulse,
+  .work-row:hover .art-pulse { animation: pulse-run 2s ease-in-out infinite; }
+  @keyframes pulse-run {
+    0%   { opacity: 0; transform: translateX(0); }
+    20%  { opacity: .9; }
+    90%  { opacity: .9; transform: translateX(112px); }
+    100% { opacity: 0; transform: translateX(120px); }
+  }
+
+  /* Stages and nodes light up in order, left to right. */
+  .project-card:hover .art-stage,
+  .project-card:focus-within .art-stage,
+  .work-row:hover .art-stage,
+  .project-card:hover .art-node,
+  .project-card:focus-within .art-node,
+  .work-row:hover .art-node { animation: lift 2.4s ease-in-out infinite; }
+  @keyframes lift {
+    0%, 100% { opacity: .8; transform: translateY(0); }
+    50%      { opacity: 1; transform: translateY(-7px); }
+  }
+
+  /* A voice, as bars. */
+  .project-card:hover .art-wave line,
+  .project-card:focus-within .art-wave line,
+  .work-row:hover .art-wave line { animation: wave 1s ease-in-out infinite; transform-origin: center; }
+  @keyframes wave {
+    0%, 100% { transform: scaleY(.55); }
+    50%      { transform: scaleY(1.25); }
+  }
+
+  /* Class scores settling, with the winner arriving last. */
+  .project-card:hover .art-bar,
+  .project-card:focus-within .art-bar,
+  .work-row:hover .art-bar { animation: bar-in .9s ease-out both; transform-origin: 840px center; }
+  @keyframes bar-in { from { transform: scaleX(.12); } to { transform: scaleX(1); } }
+
+  /* Reflecting-surface cells retuning their phase. */
+  .project-card:hover .art-irs-cell,
+  .project-card:focus-within .art-irs-cell,
+  .work-row:hover .art-irs-cell { animation: irs 2.2s ease-in-out infinite; }
+  @keyframes irs {
+    0%, 100% { opacity: .18; }
+    50%      { opacity: .85; }
+  }
+
+  /* Signal travelling along each link. */
+  .project-card:hover .art-link,
+  .project-card:focus-within .art-link,
+  .work-row:hover .art-link { animation: link-run 1.6s linear infinite; }
+  @keyframes link-run { to { stroke-dashoffset: -60; } }
+
+  /* The assistant, typing. */
+  .project-card:hover .art-caret,
+  .project-card:focus-within .art-caret,
+  .work-row:hover .art-caret { animation: caret 1.1s steps(1) infinite; }
+  @keyframes caret { 0%, 49% { opacity: .9; } 50%, 100% { opacity: 0; } }
+
+  /* Overlays nudged around, the way you would drag them. */
+  .project-card:hover .art-ov--a,
+  .project-card:focus-within .art-ov--a,
+  .work-row:hover .art-ov--a { animation: drag-a 3.4s ease-in-out infinite; }
+  @keyframes drag-a {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(28px, 14px); }
+  }
+  .project-card:hover .art-ov--b,
+  .project-card:focus-within .art-ov--b,
+  .work-row:hover .art-ov--b { animation: drag-b 3.4s ease-in-out infinite; }
+  @keyframes drag-b {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-22px, -12px); }
+  }
+  /* The playhead advancing. */
+  .project-card:hover .art-scrub,
+  .work-row:hover .art-scrub { animation: scrub 3s ease-in-out infinite; transform-origin: 190px center; }
+  @keyframes scrub {
+    0%, 100% { transform: scaleX(.55); }
+    50%      { transform: scaleX(1); }
+  }
+}
+
 /* ---------------- terminal frame ----------------
    Reuses .bframe wholesale — border, bar, dots — so a card showing program
    output sits beside the screenshot cards as a sibling, not a second design. */

@@ -18,6 +18,7 @@
  */
 
 import type { JSX } from "react";
+import { projectArt, type ArtKey } from "./project-art";
 
 /** FNV-1a. Small, dependency-free, and stable across builds — which is the point. */
 function hash(input: string): number {
@@ -29,8 +30,16 @@ function hash(input: string): number {
   return h >>> 0;
 }
 
-/** Warm offsets only. See the note above about rainbows. */
-const HUES = [-34, -21, -9, 0, 13, 28, 46];
+/**
+ * Warm offsets only. See the note above about rainbows.
+ *
+ * The band was ±46° first, which was too wide to survive contact with the
+ * accent: it is orange at roughly 25°, so +46 lands near 71° and two covers
+ * came out olive-green against a site that has no green in it. ±26 keeps every
+ * cover between coral and amber — enough separation to tell them apart, not
+ * enough to leave the palette.
+ */
+const HUES = [-26, -18, -10, 0, 8, 16, 23];
 
 /**
  * The name to draw on the cover.
@@ -163,12 +172,15 @@ export default function ProjectCover({
   stack,
   coverTitle,
   coverLine,
+  art,
   banner = false,
 }: {
   slug: string;
   title: string;
   category: string;
   stack: string[];
+  /** A drawing of what this project does. Falls back to the hashed pattern. */
+  art?: ArtKey;
   /** A shorter name for the cover, where the full title is a sentence. */
   coverTitle?: string;
   /** What the project does, in a few words. Falls back to category · language. */
@@ -179,6 +191,9 @@ export default function ProjectCover({
   const h = hash(slug);
   const variant = h % 4;
   const hue = HUES[(h >>> 3) % HUES.length];
+  // A real scene where one exists; the abstract pattern is the safety net for
+  // anything added later without art of its own.
+  const scene = projectArt(art);
 
   return (
     <div
@@ -194,7 +209,7 @@ export default function ProjectCover({
         aria-hidden="true"
         focusable="false"
       >
-        {pattern(variant, h)}
+        {scene ?? pattern(variant, h)}
       </svg>
       <div className="pcover-label" aria-hidden="true">
         <span className="pcover-name">{coverName(title, coverTitle)}</span>

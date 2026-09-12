@@ -87,11 +87,38 @@ export default async function RepoPage({
           stack={entry.stack}
           coverTitle={entry.coverTitle}
           coverLine={entry.coverLine}
+          art={entry.art}
           banner
         />
       </div>
 
-      {entry.highlights.length ? (
+      {/* The write-up, laid out exactly like a case study at /work/[slug] —
+          a visitor who clicked through wants the same depth either way. Falls
+          back to the highlights where no write-up has been authored yet. */}
+      {entry.sections?.length ? (
+        <div style={{ marginTop: "3rem", display: "grid", gap: "2.5rem" }}>
+          {entry.sections.map((section) => (
+            <section key={section.heading}>
+              <p className="eyebrow">{section.heading}</p>
+              <div
+                style={{
+                  marginTop: "0.75rem",
+                  display: "grid",
+                  gap: "0.85rem",
+                  maxWidth: "var(--measure)",
+                  color: "var(--fg-dim)",
+                }}
+              >
+                {section.body.map((paragraph) => (
+                  <p key={paragraph} style={{ margin: 0 }}>
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : entry.highlights.length ? (
         <div
           style={{
             display: "grid",

@@ -12,7 +12,13 @@
  * touches is already public — nothing from the corpus passes through here.
  */
 
-import { projects, type ProjectMedia, type ProjectTerminal } from "@/content/projects";
+import {
+  projects,
+  type CaseStudySection,
+  type ProjectMedia,
+  type ProjectTerminal,
+} from "@/content/projects";
+import type { ArtKey } from "@/components/ui/project-art";
 import { repos } from "@/content/repos";
 import { repoNotes } from "@/content/repo-notes";
 
@@ -39,10 +45,14 @@ export interface CatalogEntry {
   coverTitle?: string;
   /** What it does, in a few words, for the generated cover. */
   coverLine?: string;
+  /** Which drawing goes on the cover. */
+  art?: ArtKey;
+  /** The write-up on the entry's own page. */
+  sections?: CaseStudySection[];
 }
 
 /**
- * Sorts newest first.
+ * Sorts newest first *within* each group; see `catalog()` for the grouping.
  *
  * `timeframe` is display text ("Feb 2026", "Oct — Nov 2025", "Jul — Aug 2026"),
  * never a date, so it is parsed rather than compared: take the *last* month
@@ -87,9 +97,17 @@ export function catalog(): CatalogEntry[] {
 
   const fromRepos: CatalogEntry[] = repos.map(repoEntry);
 
-  return [...fromProjects, ...fromRepos].sort(
-    (a, b) => endedAt(b.timeframe) - endedAt(a.timeframe),
-  );
+  const byDate = (a: CatalogEntry, b: CatalogEntry) =>
+    endedAt(b.timeframe) - endedAt(a.timeframe);
+
+  // The four on "/" lead the catalogue, in the order they appear there, so a
+  // visitor arriving from the homepage meets the same work in the same order
+  // rather than having to find it again among ten others. Everything else
+  // follows, newest first.
+  const featured = fromProjects.filter((e) => e.featured);
+  const rest = [...fromProjects.filter((e) => !e.featured), ...fromRepos].sort(byDate);
+
+  return [...featured, ...rest];
 }
 
 function repoEntry(r: (typeof repos)[number]): CatalogEntry {
@@ -108,6 +126,8 @@ function repoEntry(r: (typeof repos)[number]): CatalogEntry {
     highlights: note?.highlights ?? r.highlights,
     coverTitle: note?.coverTitle,
     coverLine: note?.coverLine,
+    art: note?.art,
+    sections: note?.sections,
   };
 }
 
