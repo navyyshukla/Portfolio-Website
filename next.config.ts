@@ -45,7 +45,21 @@ const nextConfig: NextConfig = {
   // that it can break dev behaviour. Add it only if deploying to a host that
   // does not set it.
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The résumé viewer embeds this file in a same-origin <iframe>
+      // (ResumeViewer.tsx). The blanket `frame-ancestors 'none'` above blocks
+      // that framing too, so this file needs a same-origin carve-out. Next
+      // applies later matches after earlier ones, overriding same-key headers
+      // for the same path.
+      {
+        source: "/resume.pdf",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
+    ];
   },
 };
 
