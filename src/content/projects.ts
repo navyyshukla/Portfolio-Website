@@ -44,6 +44,23 @@ export interface ProjectMedia {
   video?: string;
 }
 
+/**
+ * A sample of the project's own output, drawn in a terminal frame.
+ *
+ * For projects that have no screen to capture. A command-line tool framed in
+ * browser chrome would be a lie, and a generated cover says nothing about what
+ * it does — its output is the honest demo. Takes precedence over `media` when
+ * both are set, which no project currently does.
+ */
+export interface ProjectTerminal {
+  /** Drawn where the browser frame draws its hostname. */
+  title: string;
+  /** One string per line. Rendered verbatim in a monospace block. */
+  lines: string[];
+  /** What the sample shows, for screen readers. Not "a terminal window". */
+  alt: string;
+}
+
 export interface Project {
   slug: string;
   title: string;
@@ -55,10 +72,82 @@ export interface Project {
   repoUrl?: string;
   liveUrl?: string;
   media?: ProjectMedia;
+  terminal?: ProjectTerminal;
   caseStudy: CaseStudySection[];
 }
 
 export const projects: Project[] = [
+  {
+    slug: "margin",
+    title: "Margin",
+    summary:
+      "A compressor for the JSON you paste into an LLM prompt. 41.6% fewer tokens across eight real APIs, 73.7% with the content store, and a model was asked whether the answers still hold.",
+    category: "Developer tooling",
+    timeframe: "Sep 2026",
+    stack: [
+      "Python",
+      "MCP",
+      "tiktoken",
+      "pytest",
+      "Property-based testing",
+      "uv",
+    ],
+    repoUrl: "https://github.com/navyyshukla/Margin",
+    terminal: {
+      title: "margin",
+      lines: [
+        "$ curl -s api.github.com/repos/python/cpython/issues | margin",
+        "",
+        "#margin/v1",
+        "#legend \\N = null; empty cell = key absent in that row",
+        '#const{"state":"open","locked":false}',
+        "[3]{number:int,title:str}",
+        "37537,Fix pragmas",
+        "37536,Fix inspect",
+        "37535,Fix errors",
+        "",
+        "# 55.3% fewer tokens. decompress(compress(x)) == x",
+      ],
+      alt: "Margin compressing a GitHub issues response: field names written once as a header row, values shared by every record hoisted into a constants line, and the records themselves reduced to comma-separated rows — 55.3% fewer tokens.",
+    },
+    caseStudy: [
+      {
+        heading: "The problem",
+        body: [
+          "An API response pasted into a prompt spends most of its tokens repeating itself. Every record restates every field name, half the keys hold the same value in all of them, and a third of a GitHub payload is link templates the model will never follow.",
+          "Prompt tokens are a budget, and that budget is paid on every call. Sending the payload whole is the easiest thing to do and the most expensive.",
+        ],
+      },
+      {
+        heading: "Rules, not a model",
+        body: [
+          "The compressor is rule-based on purpose. Field names are written once as a header rather than once per record, values identical across every record are hoisted into a constants preamble, columns drawn from a handful of repeated values are listed once and indexed, and arrays of IDs are stored as differences rather than whole numbers.",
+          "The output is a self-describing table with a legend, so the model can read the format without being taught it. That claim is not assumed — it is checked by handing the document to a model with no access to the repository.",
+        ],
+      },
+      {
+        heading: "Reversible, after one deliberate cut",
+        body: [
+          "One stage drops link-template and opaque-ID keys — the *_url, node_id and gravatar_id family — and nothing restores them. That cut is stated rather than hidden: a compressed GitHub payload can no longer answer \"link me to issue 37508\".",
+          "Everything after that line is exactly reversible. decompress(compress(x)) is verified at runtime, and a transform that cannot be undone does not ship past it. If no stage helps, the input comes back unchanged — nothing ever leaves larger than it arrived.",
+        ],
+      },
+      {
+        heading: "Proving the answers did not move",
+        body: [
+          "Compression is worthless if it quietly costs accuracy, so the eval asks a model that has never seen the repository the same questions on each arm: raw 75/75, compressed 75/75, stored 73/75 across eight payloads, with 16 comprehension questions judged 16/16 on every arm.",
+          "The stored arm's two misses are arithmetic over a column the store holds no handle for, and the run is recorded as failing its own bar because of them. The judge shares a model family with the answerer, which makes it the weaker instrument — so the write-up says that rather than claiming a clean sweep.",
+        ],
+      },
+      {
+        heading: "Outcome",
+        body: [
+          "41.6% fewer tokens across the eight APIs, from 55.3% on GitHub issues down to 0.0% on payloads that are already columnar — which the docs argue is the correct outcome rather than a gap. With the content store and the MCP server, where bulk values move out of the prompt and the model fetches them on demand, 73.7%.",
+          "Every figure is measured against the file as fetched, under cl100k_base, including the ones borrowed from the project that inspired it — whose published thresholds would have rejected most of these results.",
+        ],
+      },
+    ],
+  },
   {
     slug: "other-side-of-india",
     title: "The Other Side of India",
@@ -246,9 +335,33 @@ export const projects: Project[] = [
   },
 ];
 
-/** Never more than three on "/". */
-export const featuredProjects = projects.slice(0, 3);
+/**
+ * Never more than four on "/".
+ *
+ * Was three until Margin earned a place beside them. Four is the ceiling for
+ * the same reason three was: a recruiter scanning the page should reach Skills
+ * and Contact without a scroll that feels like work. The rest of the catalogue
+ * lives at "/projects".
+ */
+export const featuredProjects = projects.slice(0, 4);
 
 export function getProject(slug: string): Project | undefined {
   return projects.find((p) => p.slug === slug);
 }
+
+/**
+ * Copy for "/projects" — the full catalogue.
+ *
+ * Here rather than in the component, for the same reason every other string is:
+ * components hardcode no user-facing text.
+ */
+export const projectsPage = {
+  eyebrow: "Everything",
+  title: "All projects",
+  intro:
+    "Every project with a written record behind it — the four case studies above, and the repositories that never got a deployment but still hold decisions worth reading.",
+  backLabel: "← Back home",
+  noDeploy: "No live deployment — the source is the artifact.",
+  sourceLabel: "Source ↗",
+  liveLabel: "Live app ↗",
+} as const;

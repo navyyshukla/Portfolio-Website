@@ -338,11 +338,14 @@ h1, h2, h3 {
   overflow: hidden; text-decoration: none;
   transition: border-color .22s, transform .22s, box-shadow .22s;
 }
-.work-row--nomedia { grid-template-columns: 1fr; }
 .work-row:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 40px -24px var(--glow); }
 .work-row .body { padding: clamp(1.4rem, 3vw, 2.2rem); display: flex; flex-direction: column; gap: 0.7rem; }
 .work-row h3 { margin: 0; font-size: var(--t-h3); }
 .work-row p { margin: 0; color: var(--fg-dim); max-width: 48ch; }
+/* The way out to the full catalogue. Centred under the rows so it reads as a
+   continuation of the list rather than another card. */
+.work-more { display: flex; justify-content: center; margin: calc(var(--gap) * 1.4) 0 0; }
+
 .work-row .preview {
   background: radial-gradient(90% 120% at 78% 12%, var(--accent-soft), transparent 66%), var(--ground-2);
   border-left: 1px solid var(--hair); display: grid; place-items: center;
@@ -545,6 +548,104 @@ h1, h2, h3 {
 @media (max-width: 520px) { .ask-fab .lbl { display: none; } }
 
 /* ---------------- beyond-code ---------------- */
+/* ---------------- generated covers ----------------
+   For projects with nothing to screenshot. The art is inline SVG tinted with
+   the site's own accent, so it themes for free; the per-project hue offset
+   arrives as --cover-hue from the component. Rotating the hue on the art layer
+   only keeps the label text at full contrast. */
+.pcover {
+  position: relative; width: 100%; aspect-ratio: 1440 / 900;
+  border: 1px solid var(--hair); border-radius: 12px; overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 18% 8%, var(--accent-soft), transparent 62%),
+    var(--ground-2);
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.pcover-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  color: var(--accent);
+  filter: hue-rotate(var(--cover-hue, 0deg));
+  opacity: .85;
+}
+.pcover-label {
+  position: absolute; inset: auto 0 0 0;
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: clamp(0.9rem, 2.4vw, 1.4rem);
+  /* A scrim, so the meta line stays readable over the busiest pattern. */
+  background: linear-gradient(to top, var(--ground-2) 12%, transparent);
+}
+.pcover-initials {
+  font-family: var(--font-display-face), Georgia, serif;
+  font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1; color: var(--fg);
+}
+.pcover-meta {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted);
+}
+/* On a repository's own page the cover is decoration, not the subject — at a
+   full 1440/900 it pushed the actual notes off the first screen. */
+.pcover--banner { aspect-ratio: 1440 / 340; }
+.pcover--banner .pcover-initials { font-size: clamp(1.5rem, 3.4vw, 2.2rem); }
+
+.work-row:hover .pcover,
+.work-row:focus-within .pcover { border-color: var(--accent-line); box-shadow: 0 20px 44px -22px var(--glow); }
+
+/* ---------------- terminal frame ----------------
+   Reuses .bframe wholesale — border, bar, dots — so a card showing program
+   output sits beside the screenshot cards as a sibling, not a second design. */
+.bframe--term .bframe-url { text-align: left; }
+.bframe-term-screen {
+  aspect-ratio: var(--frame-ratio, 1440 / 900);
+  overflow: hidden; background: var(--ground-2);
+  padding: clamp(0.7rem, 1.8vw, 1.05rem);
+}
+.bframe-term-screen pre {
+  margin: 0; font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: clamp(0.5rem, 0.92vw, 0.66rem); line-height: 1.75;
+  color: var(--fg-dim); white-space: pre; overflow: hidden;
+}
+.bframe-term-screen .term-cmd { color: var(--accent); }
+.bframe-term-screen .term-note { color: var(--muted); }
+/* On a case study the frame is the subject: room to breathe and real type. */
+.bframe--termhero .bframe-term-screen { aspect-ratio: auto; padding: clamp(1.1rem, 2.6vw, 1.8rem); }
+.bframe--termhero .bframe-term-screen pre { font-size: clamp(0.68rem, 1.15vw, 0.84rem); overflow-x: auto; }
+
+/* ---------------- project catalogue ---------------- */
+.project-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 800px) { .project-grid { grid-template-columns: 1fr; } }
+.project-card {
+  display: flex; flex-direction: column; height: 100%;
+  border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface);
+  overflow: hidden; text-decoration: none;
+  transition: border-color .22s, transform .22s, box-shadow .22s;
+}
+.project-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 18px 40px -24px var(--glow); }
+/* Every shot is the same box, whatever is inside it.
+   A browser or terminal frame carries a ~38px title bar that a generated cover
+   does not, so left alone the grid's rows started their copy at two different
+   heights. The box is fixed here and the frame's screen takes whatever is
+   left, which also stops one long summary from stretching its neighbour. */
+.project-card .shot {
+  border-bottom: 1px solid var(--hair); background: var(--ground-2);
+  aspect-ratio: 1440 / 900; display: grid; overflow: hidden;
+}
+.project-card .shot > * { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.project-card .shot .bframe-screen,
+.project-card .shot .bframe-term-screen { flex: 1; min-height: 0; aspect-ratio: auto; }
+.project-card .shot .pcover { aspect-ratio: auto; }
+/* The sample is short and the box is not; centre it rather than leaving it
+   pinned to the top above a block of nothing. */
+.project-card .shot .bframe-term-screen { justify-content: center; }
+/* The cover and frame sit flush inside the card; the card draws the border. */
+.project-card .shot .pcover,
+.project-card .shot .bframe { border: none; border-radius: 0; box-shadow: none; }
+.project-card .body { padding: clamp(1.1rem, 2.4vw, 1.5rem); display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
+.project-card h3 { margin: 0; font-size: 1.2rem; }
+.project-card p { margin: 0; color: var(--fg-dim); }
+.project-card .stackline { margin-top: auto; padding-top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) { .project-card:hover { transform: none; } }
+
 .beyond-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 700px) { .beyond-list { grid-template-columns: 1fr; } }
 .beyond-list li { border: 1px solid var(--hair); border-radius: var(--r); background: var(--surface); padding: 1.4rem; }

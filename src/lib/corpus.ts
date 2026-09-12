@@ -175,7 +175,7 @@ function repoDocuments(): Document[] {
         `Repository: ${r.repoUrl}`,
         r.liveUrl ? `Live: ${r.liveUrl}` : null,
         ...r.highlights.map((h) => `- ${h}`),
-        "Recorded from the repository itself; there is no case study page for this one.",
+        `Recorded from the repository itself rather than written up as a case study. Listed at /projects, with its own page at /projects/${r.slug}.`,
       ]
         .filter(Boolean)
         .join("\n"),

@@ -30,8 +30,12 @@ binding constraint is free-tier tokens per day, not recall.
 
 - **Homepage** — Hero → Experience → Selected Work → Skills → Contact, all
   static
-- **Case studies** at `/work/[slug]` — three, statically generated, each with a
+- **Case studies** at `/work/[slug]` — four, statically generated, each with a
   poster that only fetches its hover clip on hover
+- **The full catalogue** at `/projects` — every project with a README, each on
+  its own page. The ones that were never deployed get a cover generated from a
+  hash of their slug: inline SVG, zero JS, zero image bytes, and it re-themes
+  with the site
 - **`/ask`** — a streaming assistant console, plus a docked non-modal popup
   available site-wide
 - **`/beyond-code`** — interests, and an isometric Three.js path that walks
@@ -121,7 +125,7 @@ deterministic, which means it can be tested — and it is, on every push.
 `src/lib/corpus.ts` assembles the prompt in two layers:
 
 - **Core**, always sent: identity, experience, education, skills, and a
-  one-line index of *every* project. 1,489 tokens.
+  one-line index of *every* project. 1,555 tokens.
 - **Documents**, sent only when they match: full case studies, repo detail,
   interests. At most `MAX_DOCUMENTS = 3`, inside a
   `DETAIL_TOKEN_BUDGET = 1250`.
@@ -140,7 +144,7 @@ budget**. On the free tier it is tokens per day that bind, not requests:
 | `llama-3.3-70b-versatile` | primary | 30 | 12,000 | 100,000 |
 | `llama-3.1-8b-instant` | overflow | 30 | 6,000 | 500,000 |
 
-At the current peak prompt of 2,584 tokens that is roughly **29 questions a day**
+At the current peak prompt of 2,687 tokens that is roughly **28 questions a day**
 on the primary model before overflow takes over. Sending the whole corpus every
 time would cut that by more than half. Every token added to the corpus is taken
 directly out of a visitor's answer.
@@ -176,12 +180,13 @@ npm run eval:retrieval
 
 28 questions and 2 negative cases, each asserting the document it must (or must
 not) pull. It fails on a retrieval miss or a token-budget breach, and it runs in
-CI on every push. Current: core 1,489t, prompt mean 2,029t, peak 2,584t against
-a 2,800t budget.
+CI on every push. Current: core 1,555t, prompt mean 2,111t, peak 2,687t against
+a 2,800t budget — so the core layer has 45 tokens of headroom, and the next
+project promoted to a case study will need something else shortened first.
 
 ## Performance
 
-`/` ships **166.9 KB of first-load JS gzipped** in production, against a
+`/` ships **170.3 KB of first-load JS gzipped** across 15 chunks, against a
 self-imposed 200 KB cap. What keeps it there:
 
 - Three.js, Lenis, `react-markdown` and the entire chat UI are behind
@@ -191,6 +196,8 @@ self-imposed 200 KB cap. What keeps it there:
   posters arriving on scroll
 - Hover clips fetch **zero bytes** until hovered, and are never rendered on
   touch or under reduced motion
+- Generated covers are inline SVG in a server component — no image request, no
+  client JavaScript, and nothing to 404
 
 To re-measure: `npm run build && npm start`, then sum the gzipped chunks `/`
 requests. `npm run analyze` gives the treemap.
@@ -205,8 +212,8 @@ src/
     ui/           nav, footer, palette, theme toggle, dot field, media
     ask/          assistant console, popup, hooks
     story/        the Three.js story path
-  content/        all user-facing copy
-  lib/            corpus, retrieval, guardrails, llm, budget, ratelimit, seo
+  content/        all user-facing copy (repo-notes.ts curates the generated repos.ts)
+  lib/            corpus, retrieval, guardrails, llm, budget, ratelimit, seo, catalog
 scripts/          github sync, shot capture, retrieval eval
 public/           résumé PDF, portrait, project posters and clips
 ```

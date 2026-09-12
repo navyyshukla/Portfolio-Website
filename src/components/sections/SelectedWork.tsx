@@ -1,11 +1,18 @@
 import Link from "next/link";
-import { featuredProjects } from "@/content/projects";
+import { featuredProjects, projectsPage } from "@/content/projects";
 import { BrowserFrame } from "@/components/ui/BrowserFrame";
 import { ProjectPreviewVideo } from "@/components/ui/ProjectPreviewVideo";
+import TerminalFrame from "@/components/ui/TerminalFrame";
+import ProjectCover from "@/components/ui/ProjectCover";
 
 /**
- * Three equal rows, same size and shape — no ranking implied by tile size.
- * Depth belongs on /work/[slug].
+ * Four equal rows, same size and shape — no ranking implied by tile size.
+ * Depth belongs on /work/[slug], and the rest of the catalogue on /projects.
+ *
+ * A row shows whichever preview the project has: a screenshot in browser
+ * chrome, its own output in a terminal, or a generated cover. The class name
+ * `work-row` is load-bearing on all three — `ProjectPreviewVideo` finds its
+ * card with `closest(".work-row")` and every hover rule keys off it.
  */
 export function SelectedWork() {
   return (
@@ -20,9 +27,7 @@ export function SelectedWork() {
           <Link
             key={project.slug}
             href={`/work/${project.slug}`}
-            // Nothing captured yet? The row goes full width rather than
-            // reserving half of itself for an empty column.
-            className={`work-row reveal${project.media ? "" : " work-row--nomedia"}`}
+            className="work-row reveal"
           >
             <div className="body">
               <p className="eyebrow eyebrow--accent">
@@ -37,10 +42,10 @@ export function SelectedWork() {
                 {project.repoUrl ? <span>Code</span> : null}
               </p>
             </div>
-            {project.media ? (
-              <div className="preview">
-                {/* The preview column is the narrower half of a 1.15fr 1fr
-                    grid inside a 1240px page, so it never exceeds ~520px. */}
+            <div className="preview">
+              {/* The preview column is the narrower half of a 1.15fr 1fr
+                  grid inside a 1240px page, so it never exceeds ~520px. */}
+              {project.media ? (
                 <BrowserFrame
                   media={project.media}
                   sizes="(max-width: 800px) 92vw, 520px"
@@ -49,11 +54,26 @@ export function SelectedWork() {
                     <ProjectPreviewVideo src={project.media.video} />
                   ) : null}
                 </BrowserFrame>
-              </div>
-            ) : null}
+              ) : project.terminal ? (
+                <TerminalFrame terminal={project.terminal} />
+              ) : (
+                <ProjectCover
+                  slug={project.slug}
+                  title={project.title}
+                  category={project.category}
+                  stack={project.stack}
+                />
+              )}
+            </div>
           </Link>
         ))}
       </div>
+
+      <p className="work-more reveal">
+        <Link href="/projects" className="btn btn-ghost">
+          {projectsPage.title} ↗
+        </Link>
+      </p>
     </section>
   );
 }

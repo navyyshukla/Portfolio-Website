@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { projects } from "@/content/projects";
+import { repos } from "@/content/repos";
 
 /**
  * The ⌘K palette — dual purpose, Linear/Raycast style: it resolves known intent
@@ -14,15 +15,17 @@ import { projects } from "@/content/projects";
  * This module is only ever reached through next/dynamic from PaletteShim, so
  * neither it nor cmdk appears in the `/` bundle.
  *
- * Note this imports `projects` for the nav list — that is content metadata
- * (titles and slugs), not the corpus. The corpus is server-only and never
- * crosses into a client component.
+ * Note this imports `projects` and `repos` for the nav list — that is content
+ * metadata (titles and slugs), not the corpus. The corpus is server-only and
+ * never crosses into a client component. `repos` carries a `keywords` field
+ * meant purely for retrieval; it is deliberately not searched or shown here.
  */
 
 const PAGES = [
   { label: "Home", href: "/" },
   { label: "Ask the assistant", href: "/ask" },
   { label: "Beyond code", href: "/beyond-code" },
+  { label: "All projects", href: "/projects" },
 ];
 
 export default function CommandPalette({ onClose }: { onClose: () => void }) {
@@ -88,6 +91,16 @@ export default function CommandPalette({ onClose }: { onClose: () => void }) {
                 className="cursor-pointer rounded-md px-3 py-2 text-sm data-[selected=true]:bg-bg"
               >
                 Work · {project.title}
+              </Command.Item>
+            ))}
+            {repos.map((repo) => (
+              <Command.Item
+                key={repo.slug}
+                value={`project ${repo.title} ${repo.stack.join(" ")}`}
+                onSelect={() => go(`/projects/${repo.slug}`)}
+                className="cursor-pointer rounded-md px-3 py-2 text-sm data-[selected=true]:bg-bg"
+              >
+                Project · {repo.title}
               </Command.Item>
             ))}
           </Command.Group>

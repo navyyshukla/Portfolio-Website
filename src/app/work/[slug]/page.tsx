@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { projects, getProject } from "@/content/projects";
 import { BrowserFrame } from "@/components/ui/BrowserFrame";
+import TerminalFrame from "@/components/ui/TerminalFrame";
 import { buildMetadata } from "@/lib/seo";
 
 /** Enumerates the full URL space at build time. */
@@ -78,7 +79,7 @@ export default async function ProjectPage({
         </div>
       )}
 
-      {project.media && (
+      {project.media ? (
         <div className="bframe--hero">
           {/* Full content width here — the shot is the subject of the page,
               not a teaser, so it gets no hover treatment and plenty of room. */}
@@ -87,7 +88,13 @@ export default async function ProjectPage({
             sizes="(max-width: 1240px) 92vw, 1140px"
           />
         </div>
-      )}
+      ) : project.terminal ? (
+        /* A command-line tool has no screen to photograph; its output is the
+           subject instead, at full size and selectable. */
+        <div className="bframe--hero">
+          <TerminalFrame terminal={project.terminal} hero />
+        </div>
+      ) : null}
 
       <div style={{ marginTop: "3rem", display: "grid", gap: "2.5rem" }}>
         {project.caseStudy.map((section) => (
