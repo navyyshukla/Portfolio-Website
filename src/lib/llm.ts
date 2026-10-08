@@ -8,8 +8,12 @@ import "server-only";
  * the binding constraint — not requests-per-day, which is what the marketing
  * numbers advertise. Measured from Groq's own rate-limit headers:
  *
- *   llama-3.3-70b-versatile   TPM 12,000   RPD  1,000   <- primary
- *   llama-3.1-8b-instant      TPM  6,000   RPD 14,400   <- overflow
+ *   qwen/qwen3.8-27b          TPM 8,000    RPD  1,000   <- primary
+ *   openai/gpt-oss-20b        TPM 8,000    RPD  1,000   <- overflow
+ *
+ * (Figures below describe the retired Llama pair; Groq removed both in 2026 and
+ * every request 404'd until the names changed. Re-measure the daily token
+ * ceilings before trusting the capacity maths in STATE.md.)
  *
  * At ~4.3k tokens a call the 8B model allows barely one request per minute,
  * which is unusable; the 70B allows about three and is the better model. When
@@ -39,13 +43,13 @@ function providers(): Provider[] {
       name: "groq:70b",
       url: GROQ_URL,
       key: groq,
-      model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+      model: process.env.GROQ_MODEL ?? "qwen/qwen3.8-27b",
     },
     {
       name: "groq:8b",
       url: GROQ_URL,
       key: groq,
-      model: process.env.GROQ_MODEL_FALLBACK ?? "llama-3.1-8b-instant",
+      model: process.env.GROQ_MODEL_FALLBACK ?? "openai/gpt-oss-20b",
     },
     {
       name: "gemini",
